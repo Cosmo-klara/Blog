@@ -2,14 +2,11 @@ import type { CardListData, Config, IntegrationUserConfig, ThemeUserConfig } fro
 
 export const theme: ThemeUserConfig = {
   // === Basic configuration ===
-  /** Title for your website. Will be used in metadata and as browser tab title. */
-  title: 'Astro Theme Pure',
-  /** Will be used in index page & copyright declaration */
-  author: 'Pure Lab',
-  /** Description metadata for your website. Can be used in page metadata. */
-  description: 'Stay hungry, stay foolish',
-  /** The default favicon for your site which should be a path to an image in the `public/` directory. */
+  title: 'Cosmo‘s Blog',
+  author: 'Cosmo',
+  description: '永远喜欢小睦',
   favicon: '/favicon/favicon.ico',
+
   /** Specify the default language for this site. */
   locale: {
     lang: 'en-US',
@@ -48,7 +45,6 @@ export const theme: ThemeUserConfig = {
   header: {
     menu: [
       { title: 'Blog', link: '/blog' },
-      { title: 'Docs', link: '/docs' },
       { title: 'Projects', link: '/projects' },
       { title: 'Links', link: '/links' },
       { title: 'About', link: '/about' }

@@ -1,21 +1,20 @@
 ---
 import { Image } from 'astro:assets'
 
-import { GithubCard } from 'astro-pure/advanced'
-import { Quote } from 'astro-pure/advanced'
+import { GithubCard, Quote } from 'astro-pure/advanced'
 import { PostPreview } from 'astro-pure/components/pages'
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import { Button, Card, Icon, Label } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
-import ProjectCard from '@/components/home/ProjectCard.astro'
 import Section from '@/components/home/Section.astro'
 import SkillLayout from '@/components/home/SkillLayout.astro'
 import avatar from '@/assets/avatar.png'
 import config from '@/site-config'
 
-const languages = ['Html', 'JavaScript', 'CSS', 'Shell']
-const frontend = ['TypeScript', 'Vite', 'Webpack', 'Astro']
-const backend = ['Vercel', 'Waline']
+const web = ['Vue.js', 'Node.js', 'React', 'TypeScript', 'JavaScript', 'CSS3']
+const Programming = ['Python', 'PyTorch', 'C++', 'R', 'Java', 'Kotlin', 'Go', 'SQL']
+const Tools = ['VSCode', 'Trae', 'Vim', 'Git', 'Docker', 'AFFiNE']
+const others = ['Markdown', 'LaTeX']
 
 const MAX_POSTS = 10
 const allPosts = await getBlogCollection()
@@ -47,14 +46,16 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
 
     <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
       <Section title='About'>
-        <p class='text-muted-foreground mt-1'> Researcher / <del>Developer</del> </p>
+        <p class='text-muted-foreground mt-1'>Researcher / <del>Developer</del></p>
         <div class='flex flex-col gap-2 leading-6 text-muted-foreground'>
           <p>你好，我叫 Cosmo，一个兴趣使然的计算机专业学生</p>
           <p>
-            目前就读于北京理工大学徐特立学院，修读计算机科学与技术专业，我的兴趣主要在 TTS / <del>HPC</del> 方向，不过最近在做一些新的研究，在未来的博客中我会分享我的一些学习和工作记录。
+            目前就读于北京理工大学徐特立学院，修读计算机科学与技术专业，我的兴趣主要在 TTS / <del
+              >HPC</del
+            > 方向，不过最近在做一些新的研究，在未来的博客中我会分享我的一些学习和工作记录。
           </p>
           <p>我喜欢 CS2 和 Wuthering Waves</p>
-        <GithubCard repo='Cosmo-klara/Blog' />
+          <GithubCard repo='Cosmo-klara/Blog' />
         </div>
         <Button title='More about me' class='w-fit self-end' href='/about' variant='ahead' />
       </Section>
@@ -105,53 +106,19 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
       <Section title='Education'>
         <Card
           as='a'
-          heading='Lorem ipsum'
-          subheading='Lorem ipsum dolor sit amet, vidit suscipit at mei.'
-          date='August 2021 - July 2025'
-          href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+          heading='北京理工大学'
+          subheading='计算机科学与技术'
+          date='August 2022 - Present'
+          href='https://www.bit.edu.cn/'
         >
-          {
-            /* <ul class='ms-4 list-disc text-muted-foreground'>
-          <li>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolore debitis recusandae, ut
-            molestiae laboriosam pariatur!
-          </li>
-          <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae, pariatur!</li>
-        </ul> */
-          }
+          <img
+            class='absolute end-0 z-0 m-0 -my-3 h-full w-3/5 object-cover opacity-60'
+            src='/images/BIT.svg'
+          />
         </Card>
       </Section>
 
-      <Section title='Website List'>
-        <div class='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-          <ProjectCard
-            href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-            heading='Lorem ipsum'
-            subheading='dolor sit amet, oratio ornatus explicari pro ex'
-            imagePath='/src/assets/projects/alex-tyson-2BAXJ7ha74s-unsplash.jpg'
-          />
-          <ProjectCard
-            href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-            heading='Lorem ipsum'
-            subheading='dolor sit amet, oratio ornatus explicari pro ex'
-            imagePath='/src/assets/projects/angelica-teran-Bk9hpaXHK4o-unsplash.jpg'
-          />
-          <ProjectCard
-            href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-            heading='Lorem ipsum'
-            subheading='dolor sit amet, oratio ornatus explicari pro ex'
-            imagePath='/src/assets/projects/kseniia-zapiatkina-yATU3rg8tNI-unsplash.jpg'
-          />
-          <ProjectCard
-            href='/projects'
-            heading='More projects'
-            subheading='Check out more projects'
-            imagePath='/src/assets/projects/wen-qiao-g_w8I64FiO0-unsplash.jpg'
-          />
-        </div>
-      </Section>
-
-      <Section title='Certifications'>
+      <!-- <Section title='Certifications'>
         <Card
           as='a'
           heading='Lorem ipsum'
@@ -159,14 +126,14 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
           date='July 2024'
           href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
         />
-      </Section>
+      </Section> -->
 
       <Section title='Skills'>
-        <SkillLayout title='Languages' skills={languages} />
-        <SkillLayout title='Frontend' skills={frontend} />
-        <SkillLayout title='Backend' skills={backend} />
+        <SkillLayout title='Web' skills={web} />
+        <SkillLayout title='Programming' skills={Programming} />
+        <SkillLayout title='Tools' skills={Tools} />
+        <SkillLayout title='Other' skills={others} />
       </Section>
     </div>
-    <Quote class='mt-12' />
   </main>
 </PageLayout>

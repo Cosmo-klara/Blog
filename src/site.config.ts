@@ -2,7 +2,7 @@ import type { CardListData, Config, IntegrationUserConfig, ThemeUserConfig } fro
 
 export const theme: ThemeUserConfig = {
   // === Basic configuration ===
-  title: 'Cosmo‘s Blog',
+  title: 'Cosmo\'s Blog',
   author: 'Cosmo',
   description: '永远喜欢小睦',
   favicon: '/favicon/favicon.ico',
@@ -55,7 +55,6 @@ export const theme: ThemeUserConfig = {
   footer: {
     // Year format
     year: `© ${new Date().getFullYear()}`,
-    // year: `© 2019 - ${new Date().getFullYear()}`,
     links: [
       // Registration link
       {
@@ -75,10 +74,8 @@ export const theme: ThemeUserConfig = {
         pos: 2 // position set to 2 will be appended to copyright line
       }
     ],
-    /** Enable displaying a “Astro & Pure theme powered” link in your site’s footer. */
     credits: true,
-    /** Optional details about the social media accounts for this site. */
-    social: { github: 'https://github.com/cworld1/astro-theme-pure' }
+    social: { github: 'https://github.com/Cosmo-klara/Blog'}
   },
 
   content: {
@@ -92,8 +89,7 @@ export const theme: ThemeUserConfig = {
     },
     /** Blog page size for pagination (optional) */
     blogPageSize: 8,
-    // Currently support weibo, x, bluesky
-    share: ['weibo', 'x', 'bluesky']
+    share: ['weibo']
   }
 }
 
@@ -103,18 +99,13 @@ export const integ: IntegrationUserConfig = {
   links: {
     // Friend logbook
     logbook: [
-      { date: '2025-03-16', content: 'Is there a leakage?' },
-      { date: '2025-03-16', content: 'A leakage of what?' },
-      { date: '2025-03-16', content: 'I have a full seat of water, like, full of water!' },
-      { date: '2025-03-16', content: 'Must be the water.' },
-      { date: '2025-03-16', content: "Let's add that to the words of wisdom." }
+      { date: '2025-10-1', content: '新的开始' },
     ],
-    // Yourself link info
     applyTip: [
       { name: 'Name', val: theme.title },
       { name: 'Desc', val: theme.description || 'Null' },
-      { name: 'Link', val: 'https://astro-pure.js.org/' },
-      { name: 'Avatar', val: 'https://astro-pure.js.org/favicon/favicon.ico' }
+      { name: 'Link', val: 'https://cosmo.blog/' },
+      { name: 'Avatar', val: 'https://cosmo.blog/favicon/avatar.png' }
     ]
   },
   // Enable page search function
@@ -122,12 +113,8 @@ export const integ: IntegrationUserConfig = {
   // Add a random quote to the footer (default on homepage footer)
   // See: https://astro-pure.js.org/docs/integrations/advanced#web-content-render
   quote: {
-    // https://developer.hitokoto.cn/sentence/#%E8%AF%B7%E6%B1%82%E5%9C%B0%E5%9D%80
-    // server: 'https://v1.hitokoto.cn/?c=i',
-    // target: (data) => (data as { hitokoto: string }).hitokoto || 'Error'
-    // https://github.com/lukePeavey/quotable
-    server: 'https://api.quotable.io/quotes/random?maxLength=60',
-    target: `(data) => data[0].content || 'Error'`
+    server: 'https://v1.hitokoto.cn/?c=i',
+    target: `(data) => data.hitokoto || 'Error'`
   },
   // UnoCSS typography
   // See: https://unocss.dev/presets/typography
@@ -149,7 +136,9 @@ export const integ: IntegrationUserConfig = {
   },
   // Comment system
   waline: {
-    enable: true,
+    // enable: true,
+    // 暂时移除了评论系统，或许后续会添加，正在考虑自己买一台服务器放家里
+    enable: false,
     // Server service link
     server: 'https://astro-theme-pure-waline.arthals.ink/',
     // Refer https://waline.js.org/en/guide/features/emoji.html

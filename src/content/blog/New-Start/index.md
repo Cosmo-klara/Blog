@@ -14,3 +14,6 @@ heroImage: { src: 'thumbnail.webp', color: '#4891B2' }
 
 > 才不是想偷懒！！！
 
+诶游戏真好玩
+
+明天再开始记录吧hh

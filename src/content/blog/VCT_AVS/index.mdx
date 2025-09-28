@@ -28,7 +28,7 @@ language: '中文'
 + 现有方法：以**音频为中心**，Transformer 架构，物体查询由音频特征导出。
 
     - 缺点：
-        - ：音频的混合特性->发声物体感知过程存在模糊性
+        - ：音频的混合特性->发声物体感知过程存在模糊性(比较含糊的说辞，引言里说的是屏幕外声音的干扰和固有混合导致的感知混淆)
         - ：视觉细节损失->密集预测能力减弱
 
 + 提出方法：以**视觉为中心**，Transformer 框架 (`VCT`)，用视觉导出的查询来迭代获取相应的音频 & 视觉信息
@@ -43,19 +43,30 @@ language: '中文'
 
     > how ?
 
+### Benchmark datasets
 
-
-
-#### Benchmark datasets
-
-[AVSBench 数据集的三个子集](https://github.com/OpenNLPLab/AVSBench), 用的是 related work 中第二篇论文的数据集。
+[AVSBench 数据集的三个子集](https://github.com/OpenNLPLab/AVSBench)，用的是 related work 中第二篇论文的数据集。
 
 数据文件组织如下：(384x384分辨率, 预处理)
 
-```
+```bash
 |--AVS_dataset
     |--AVSBench_semantic/
     |--AVSBench_object/Multi-sources/
     |--AVSBench_object/Single-source/
 ```
+
+### 引言
+
+音频-视觉分割(AVS)任务是什么?
+
+利用视频中的音频信号，识别并生成发出声音的物体在视觉帧中的像素级分割掩码，
+
+和声源定位(SSL)的区别：AVS 更强调细粒度的音视频理解和像素级感知精度
+
+> 听君一席话，如听一席话，还得自己查
+> SSL: 基于多声道声信号来估计一/多声源相对于某个参考位置的空间位置(角度与距离)
+> AVS: ECCV 2022 提出的新任务，学习语音和视频中物体的对应关系，感觉有点像语义和图像的对应关系的任务。
+
+
 

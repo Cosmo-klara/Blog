@@ -97,6 +97,34 @@ python avs_tools/generate_data_384/ss_process.py
 
 ### 预训练模型下载
 
+在 ImageNet-22K 上预训练的 Swin-Base-384 模型[下载](https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384_22k.pth)
+
+```zsh
+# 转化模型
+cd avs_tools
+python swin_base_patch4_window12_384_22k.pth swin_base_patch4_window12_384_22k.pkl
+```
+
+参考 COMBO-AVS 下载其他预训练模型(在 HuggingFace 上)
+
+``` bash
+|--pretrained
+    |--detectron2/R-50.pkl
+    |--detectron2/d2_pvt_v2_b5.pkl
+    |--vggish-10086976.pth
+    |--vggish_pca_params-970ea276.pth
+```
+
+下载提供的检查点
+
+
+### 测试与评估
+
+```zsh
+sh scripts/$subset$_swinb_384_test.sh
+```
+
+
 
 
 

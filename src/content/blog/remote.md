@@ -31,7 +31,7 @@ python always_online.py
 > 前面的一些步骤已经全忘了，反正就是 ssh 免密连接那些的
 
 ```bash
-ssh address
+ssh 10.1.114.75
 ```
 
 ### VSCode 连接

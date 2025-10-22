@@ -63,6 +63,7 @@ cd models/modeling/pixel_decoder/ops
 bash make.sh
 ```
 
+
 ### 数据集下载
 
 记录一下申请数据集的通用话术
@@ -75,7 +76,7 @@ import { Collapse } from 'astro-pure/user'
     <p>Thank you for your patient response.</p>
 </Collapse>
 
-本论文使用的数据集为 [AVSBenc](https://github.com/OpenNLPLab/AVSBench)，~~需要发邮件申请下载(处理邮件好慢，在 HuggingFace 上找到了，不过是 Gated dataset,需要登录 )~~
+本论文使用的数据集为 [AVSBench](https://github.com/OpenNLPLab/AVSBench)，~~需要发邮件申请下载(处理邮件好慢，在 HuggingFace 上找到了，不过是 Gated dataset,需要登录 )~~
 
 由于服务器上代理我懒的配置，而且这个月代理流量没多少了，所以采用国内镜像站 https://hf-mirror.com 进行下载。
 
@@ -114,13 +115,40 @@ hfd Exgc/AVSBench --hf_username username --hf_token hf_*** --dataset --local-dir
     |--AVSBench_object/Single-source/
 ```
 
-运行下面的命令处理 384x384 分辨率的数据集
+为节省时间，建议直接去 annQi/COMBO-AVS-checkpoints · Hugging Face 上下载预生成的S4\MS3\AVSS 子集 Maskiges，放置目录如下
+
+```bash
+|--AVS_dataset
+    |--AVSBench_semantic/pre_SAM_mask/
+    |--AVSBench_object/Multi-sources/ms3_data/pre_SAM_mask/
+    |--AVSBench_object/Single-source/s4_data/pre_SAM_mask/
+```
+
+运行下面的命令处理 384x384 分辨率的数据集（`ms3_process.py` 中需注释掉第 39 行的断点）
 
 ```zsh
 python avs_tools/preprocess_avss_audio.py
 python avs_tools/generate_data_384/ms3_process.py
 python avs_tools/generate_data_384/s4_process.py
 python avs_tools/generate_data_384/ss_process.py
+```
+
+在这一步可能遇到:
+```zsh
+ImportError: cannot import name 'Image' from 'PIL' (unknown location)
+```
+
+只需要重新安装 Pillow 库即可
+```zsh
+pip uninstall pillow
+pip install pillow==9.2.0
+```
+
+如果重新运行还是报错说没有 `detectron2` 模块，重新进行上面对应的安装步骤即可
+
+此外，还可能提示缺少 `einops` 库，需要安装一下
+```zsh
+pip install einops
 ```
 
 ### 预训练模型下载

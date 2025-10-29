@@ -76,10 +76,7 @@ AVSegFormer 包含四个关键模块：
 - 输入: $F_{audio} \in \mathbb{R}^{T \times D}$，作为键与值
 
 $$
-Q_{audio} = \mathrm{Attn}(Q_{init}, F_{audio}, F_{audio})
-$$
-
-$$
+Q_{audio} = \mathrm{Attn}(Q_{init}, F_{audio}, F_{audio}) \\
 Q_{mixed} = Q_{audio} + Q_{learn}
 $$
 

@@ -1,0 +1,65 @@
+---
+title: 'LongVALE 论文阅读'
+publishDate: '2025-11-02'
+updatedDate: '2025-11-03'
+description: 'LongVALE: Vision-Audio-Language-Event Benchmark Towards Time-Aware Omni-Modal Perception of Long Videos——论文研读'
+tags:
+    - Record
+    - PaperReading
+    - Weekly_work
+language: '中文'
+---
+
+## LongVALE: Vision-Audio-Language-Event Benchmark Towards Time-Aware Omni-Modal Perception of Long Videos
+
+LongVALE：面向长视频时间感知的视觉-音频-语言-事件基准
+
+[项目源码](https://github.com/ttgeng233/LongVALE)
+
+### 研究背景和动机
+
+- 局限
+    - 粗粒度
+    - 仅视觉
+- 缺乏细粒度的事件标注的多模态数据视频数据
+- 手工标注成本高
+
+### 任务定义
+
+全模态细粒度视觉理解
+
+- Omni-TVG: 多模态时序视频定位
+
+    输入 $T_i$, 输出 $(s_i, e_i)$
+
+- Omni-DVC: 多模态密集视频字幕生成
+
+    输入 $V \in \mathbb{R}^{T \times H \times W \times C}$, 输出 $\{s_i, e_i, T_i\}$ all
+
+- Omni-SC : 多模态片段字幕生成
+
+    输入 $(s_i, e_i)$, 输出 $T_i$
+
+### 数据集 LongVALE 
+
+自动生成 + 人工优化
+
+具体的生成方式论文中有介绍，这里不仔细写了，毕竟只是拿来当 baseline，放张图
+
+![](img/dataset.jpg)
+
+### 模型架构
+
+从 VTimeLLM 改的
+
+![](img/struct.jpg)
+
+- LLM: 和 VTimeLLM 一样，用的是 Vicuna1.5-7B
+- Visual Encoder: 直接用的 VTimeLLM 中的 Visual Encoder, 省去对齐 V-T 的步骤
+- Audio Encoder : BEATS
+- Speech Encoder: Whisper-large-v2
+
+类似 VTimeLLM 进行训练，但是省去了第一步，同时在二三步中加入了对 A/S-Adapter 的训练，和 LoRA 一起。
+
+
+

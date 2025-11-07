@@ -1,7 +1,7 @@
 ---
 title: '实验室服务器连接'
 publishDate: '2025-10-12'
-updatedDate: '2025-10-13'
+updatedDate: '2025-11-5'
 description: '记一下连接远程服务器的步骤'
 tags:
     - Record
@@ -10,6 +10,26 @@ language: '中文'
 
 ## 实验室服务器连接
 
+### 生成公钥并添加到服务器
+
+> 你自己能连服务器的情况下，如果不行的话得先找学长让他帮你传一下公钥
+
+`cmd` 打开终端，键入 `ssh-keygen -t rsa` 生成公钥和私钥，按照提示输入密钥文件的保存路径和密码（其实一直回车就行），然后应该能看到保存的位置，比如说： `C:\\Users\\Administrator\\.ssh` 下面， 找到 `id_rsa.pub` 这个文件，打开并复制里面的内容
+
+用你能连上服务器的电脑连接服务器，键入
+
+```zsh
+cd ~/.ssh
+vim authorized_keys
+```
+
+在里面添加你复制的公钥，一般格式为
+
+```
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQ... = ...@...
+```
+
+然后就能直接无密码登录了 
 
 ### 服务器连接外网（校园网）
 
@@ -27,8 +47,6 @@ python always_online.py
 验证网络环境，`ping baidu.com` 测试一下能不能 ping 通
 
 ### ssh 连接配置
-
-> 前面的一些步骤已经全忘了，反正就是 ssh 免密连接那些的
 
 ```bash
 ssh 10.1.114.75

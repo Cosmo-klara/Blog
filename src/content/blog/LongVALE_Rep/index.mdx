@@ -37,6 +37,9 @@ pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https
 pip install -r requirements.txt
 # 在此处显式降级 flash-attn 版本，否则编译时会出错
 pip install flash-attn==1.0.9 --no-build-isolation
+
+pip install "numpy<2.0"
+pip install moviepy==1.0.3
 ```
 
 ### 数据集下载

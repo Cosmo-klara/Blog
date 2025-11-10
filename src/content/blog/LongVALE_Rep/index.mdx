@@ -51,9 +51,11 @@ pip install moviepy==1.0.3
 > 考虑到校园网好像不太够，现在只下载了测试集进行推理，
 
 
-pip install "numpy<2.0"
-pip install moviepy==1.0.3
 
+### 运行评估代码
+
+
+```zsh
 python longvalellm/eval/eval.py --data_path longvale-annotations-eval.json --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task all --log_path log
-
+```
 

@@ -8,9 +8,9 @@ tags:
 language: '中文'
 ---
 
-## 实验室服务器连接
+# 实验室服务器连接
 
-### 生成公钥并添加到服务器
+## 生成公钥并添加到服务器
 
 > 你自己能连服务器的情况下，如果不行的话得先找学长让他帮你传一下公钥
 
@@ -31,7 +31,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQ... = ...@...
 
 然后就能直接无密码登录了 
 
-### 服务器连接外网（校园网）
+## 服务器连接外网（校园网）
 
 连接服务器后需要先进行网络配置, 也即将 BIT-srun-login-script 项目clone到服务器上
 
@@ -46,18 +46,18 @@ python always_online.py
 
 验证网络环境，`ping baidu.com` 测试一下能不能 ping 通
 
-### ssh 连接配置
+## ssh 连接配置
 
 ```bash
 ssh 10.1.114.75
 ```
 
-### VSCode 连接
+## VSCode 连接
 
 回退版本，或者在 WSL 中使用旧版本的 vscode 进行连接（这样可以双开）
 
 
-### Trae CN 连接
+## Trae CN 连接
 
 > 非常神人的，Trae 的外版在远程后 Jupyter 插件无法安装，CN 版可以正常安装
 

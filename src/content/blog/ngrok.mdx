@@ -8,11 +8,11 @@ tags:
 language: '中文'
 ---
 
-## Ngrok 使用记录
+# Ngrok 使用记录
 
 > 正好可以把工位的电脑当作这个后端服务器来弄那个卓越工程的事情，不用占着我的电脑了hh
 
-### Ngrok
+## Ngrok
 
 ngrok 官方文档
 
@@ -36,7 +36,7 @@ ngrok 是一款开源的网络服务，能够为在本地运行的网络应用�
 - 本地应用程序处理请求并发送响应，响应通过 ngrok 隧道返回到原始请求者
 
 
-### Ngrok 安装与配置
+## Ngrok 安装与配置
 
 打开 [Ngrok 官网](https://ngrok.com/), 右上角 `Log in` 登录账号（使用 Github 或者 Google 账号登录），进入其引导安装文档，按照其提供步骤安装配置即可。
 
@@ -49,7 +49,7 @@ ngrok config add-authtoken your_authtoken
 将 `your_authtoken` 替换为你在 ngrok 官网注册账号后获取的 authtoken（在引导安装网页中直接给出了）
 
 
-### Ngrok 暴露端口（随机访问域名）
+## Ngrok 暴露端口（随机访问域名）
 
 运行以下命令暴露本地端口 8080 至公网：
 
@@ -60,7 +60,7 @@ ngrok http 8080
 ngrok 会输出一个公开的、随机的 URL，访问该 URL 即可访问到本地端口 8080 提供的服务。
 
 
-### 固定访问域名
+## 固定访问域名
 
 上述方法生成的访问 URL 是随机的，不利于长期开发和协作，可以在 [ngrok dashboard](https://dashboard.ngrok.com/domains) 中找到提供的免费的固定域名
 

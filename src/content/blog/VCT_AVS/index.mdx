@@ -10,7 +10,7 @@ tags:
 language: '中文'
 ---
 
-## Revisiting Audio-Visual Segmentation with Vision-Centric Transformer
+# Revisiting Audio-Visual Segmentation with Vision-Centric Transformer
 
 基于视觉中心 Transformer 重新审视视听分割
 
@@ -25,7 +25,7 @@ language: '中文'
 > - [Audio-visual segmentation](https://arxiv.org/abs/2207.05042)
 > - [Audio-visual segmentation with semantics](https://arxiv.org/abs/2301.13190)
 
-### Benchmark datasets
+## Benchmark datasets
 
 [AVSBench 数据集的三个子集](https://github.com/OpenNLPLab/AVSBench)，用的是 related work 中第二篇论文的数据集。
 
@@ -47,16 +47,15 @@ language: '中文'
 | AVSS | 混合 | 70 | 10s |
 
 
+## 研究背景与问题动机
 
-### 研究背景与问题动机
-
-#### 研究背景
+### 研究背景
 
 音视分割（Audio-Visual Segmentation，简称 AVS）任务旨在：根据视频中的音频信号，识别并在图像中分割出正在发声的物体区域。
 
 需要模型在像素层面上理解声音来源，并准确描绘发声物体的边界。
 
-#### 现有问题
+### 现有问题
 
 目前主流方法大多采用以音频为中心的 Transformer（Audio-Centric Transformer） 架构，物体查询主要由音频特征生成，模型通过音频线索去引导视觉分割。
 
@@ -68,13 +67,13 @@ language: '中文'
 | 视觉细节缺失（Visual Detail Loss） | 音频查询起初不包含图像细节信息，融合视觉特征较晚，导致模型对物体边界和形状的刻画不精确。|
 
 
-### 核心方法 VCT
+## 核心方法 VCT
 
 为解决上述问题，作者提出一种全新的 “视觉中心（Vision-Centric）” Transformer 框架：从视觉特征生成查询（Vision-Derived Queries），再通过多层音视交互逐步融合对应音频信息。
 
-![](./img/A_V_centric.jpeg)
+![](./assets/A_V_centric.jpeg)
 
-#### 模型整体结构
+### 模型整体结构
 
 VCT 的整体结构可分为三部分:
 
@@ -95,9 +94,9 @@ VCT 的整体结构可分为三部分:
     - 查询与多尺度视觉特征交互，增强边界感知；
     - 多轮迭代后输出分割掩码与声音类别预测。(输入 PPQG 生成的查询)
 
-![](./img/struct.jpeg)
+![](./assets/struct.jpeg)
 
-#### 音频特征提取
+### 音频特征提取
 
 原始音频：$A \in \mathbb{R}^{T}$, 一维波形，可以看成 $X[n]$，$n = 1, 2, ... 16000 \times T$
 
@@ -148,7 +147,7 @@ VCT 的整体结构可分为三部分:
 
     其中 $C^a$ 为 VGGish 卷积神经网络的输出通道数，也即特征维度数，这里为 512。
 
-#### 图像特征提取
+### 图像特征提取
 
 原始视频： $I \in \mathbb{R}^{T \times H \times W \times 3}$
 原始图像： $I_t \in \mathbb{R}^{H \times W \times 3}$
@@ -165,11 +164,11 @@ $V=\{V_i\}^5_{i=2}, H_i=H/2^i, W_i=W/2^i$
 
 $V_3, V_4, V_5$ 用于后续输入迭代 Transformer 解码器进行多尺度视觉增强。
 
-#### PPQG 模块
+### PPQG 模块
 
 PPQG 模块包含三个步骤:
 
-![](./img/PPQG.jpeg)
+![](./assets/PPQG.jpeg)
 
 | 步骤 | 功能 |
 |:---:|:---:|
@@ -179,7 +178,7 @@ PPQG 模块包含三个步骤:
 
 最终生成的 **Vision Queries** 既包含语义类别先验，又保留丰富的视觉细节。
 
-##### PPQG 模块详解
+#### PPQG 模块详解
 
 PPQG 模块的输入：
 
@@ -187,7 +186,7 @@ PPQG 模块的输入：
 
 音频特征： $A_t \in \mathbb{R}^{S \times C^a} (t=1, .., T; A \in \mathbb{R}^{T \times S \times C^a})$
 
-###### 视觉嵌入聚合: 
+##### 视觉嵌入聚合: 
 
 **这一步主要是为了生成一个中间特征 $V^h$**, 说实话挺奇怪
 
@@ -207,9 +206,9 @@ $V^h \in \mathbb{R}^{C^h \times (H_2W_2)}$, $C^h$ 个（$H_2W_2$）的向量
 
 这块对应的就是论文图中
 
-![](img/V_query.jpeg)
+![](assets/V_query.jpeg)
 
-###### 音频原型提示: 
+##### 音频原型提示: 
 
 **这一步就是把音频信息通过和随机音频原型做一个对比学习，训练出一个音频原型，使它们具备区分类别的能力。然后过 Cross Attentio 让视觉查询动态聚合对应的音频特征。**
 
@@ -251,32 +250,32 @@ $P$ 通过 $\mathcal{L}_{\text{pac}}$ 更新,每个原型逐渐收敛为一个�
 > 也就是说，查询之间不再重叠或竞争，从而更好地区分不同发声物体。
 
 
-### 迭代式音视 Transformer 解码器（Iterative Audio-Visual Transformer Decoder）
+## 迭代式音视 Transformer 解码器（Iterative Audio-Visual Transformer Decoder）
 
 PPQG 模块已经生成了视觉导向查询（Vision-Derived Queries），但这些查询初始时只包含：局部视觉区域的信息以及通过音频原型提示得到的类别语义先验。
 
 为了让这些查询进一步理解该区域是否在发声（音频关联）和发声物体的形状与边界（视觉细化），作者设计了一个迭代式（iterative）音视 Transformer 解码器来持续融合音频与视觉特征，实现逐步精炼。
 
-#### 解码器结构
+### 解码器结构
 
-![](./img/IAVTD.jpeg)
+![](./assets/IAVTD.jpeg)
 
 一个完整的解码单元包含：
 
 > [音频信息提取块 + 三个视觉信息增强块]  
 > 这种结构被重复 D 次（论文中 D=2），最后再接一个音频块进行最终融合。
 
-##### 音频信息提取块（Audio Information Fetching Block）
+#### 音频信息提取块（Audio Information Fetching Block）
 
 每个视觉衍生查询通过 MHCA 与当前帧的音频特征交互，以 $A_t$ 作为键和值, 获取其代表区域的相应声音信息，从而确定该区域中的物体是否发声及其音频类别。
 
-##### 视觉信息增强块（Visual Information Enhancement Block）
+#### 视觉信息增强块（Visual Information Enhancement Block）
 
 > 借鉴 Mask2Former 的做法，将上一层预测的掩码作为注意力掩码，限制查询只关注潜在的发声区域，避免干扰。
 
 视觉查询依次与多尺度视觉特征（V5, V4, V3）进行多头交叉注意力交互；每一次交互都能捕获更细粒度的视觉特征。
 
-### 损失函数
+## 损失函数
 
 模型总损失函数为：
 
@@ -294,7 +293,7 @@ $$
 * $L_{pac}$：作者提出的原型-音频对比损失
 
 
-### 评估
+## 评估
 
 - $M_j$: Jaccard 指数, 计算预测分割与真实标签之间的交并比（IoU）。在 AVSS 子集上，是所有类别平均的 IoU
 
@@ -302,7 +301,7 @@ $$
 
 
 
-### 不足
+## 不足
 
 * **计算复杂度较高**：论文在方法部分提到 VCT 包含多层迭代交互解码器，每层又含多个多头交叉注意力（MHCA）与自注意力（MHSA）块。计算量大
 

@@ -56,7 +56,7 @@ language: '中文'
 其目标是在图像帧的时间点输出产生声音的物体的像素级分割掩码
 
 > 和声源定位(SSL)的区别  
-> ![]( ./img/SSL&AVS.jpeg)  
+> ![]( ./assets/SSL&AVS.jpeg)  
 > SSL: 帧内与声音相对应的视觉区域, 不考虑发声对象的实际形状，块级别  
 > AVS: 帧内所有发声物体的像素级分割掩码
 
@@ -66,7 +66,7 @@ language: '中文'
 
 同时在视觉语义分割结构的基础上引入了音频分支和一个关键的融合模块——TPAVI (Temporal Pixel-wise Audio-Visual Interaction)。
 
-![](./img/baseline.jpeg)
+![](./assets/baseline.jpeg)
 
 | 模块 | 作用 |
 | ---- | ---- |
@@ -106,7 +106,7 @@ $$
 
 TPAVI是这两篇论文的灵魂模块,它在视觉特征与音频特征之间建立时序+像素级的相互注意关系，从而实现模态融合。
 
-![](./img/TPAVI_module_v7.png)
+![](./assets/TPAVI_module_v7.png)
 
 #### (1) 模块输入
 

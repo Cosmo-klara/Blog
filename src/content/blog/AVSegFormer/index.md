@@ -10,13 +10,13 @@ tags:
 language: '中文'
 ---
 
-## AVSegFormer: Audio-Visual Segmentation with Transformer
+# AVSegFormer: Audio-Visual Segmentation with Transformer
 
 基于 Transformer 的视听分割
 
 [项目源码](https://github.com/vvvb-github/AVSegFormer)
 
-### Benchmark datasets
+## Benchmark datasets
 
 [AVSBench 数据集的三个子集](https://github.com/OpenNLPLab/AVSBench)
 
@@ -29,26 +29,26 @@ language: '中文'
     |--AVSBench_object/Single-source/
 ```
 
-### 研究背景与问题动机
+## 研究背景与问题动机
 
-#### 研究背景
+### 研究背景
 
 任务定义： 音视频分割（Audio-Visual Segmentation, AVS）旨在在视频中根据音频信号定位并分割出发声物体的像素区域。
 
-#### 现有问题
+### 现有问题
 
 以往方法如 AVSBench (Zhou et al., ECCV 2022) 采用了简单的模态融合（fusion module）+ Semantic FPN，但：
 
 - 无法捕捉音视频间的细粒度关联；
 - 在多声源场景下表现差；
 
-### 核心方法
+## 核心方法
 
 提出 AVSegFormer —— 一个基于 Transformer 的音视频分割框架, 核心思想是通过 稠密与稀疏的双路径跨模态融合，实现更强的音视频对应建模。
 
-#### 模型整体结构
+### 模型整体结构
 
-![](img/x3.png)
+![](assets/x3.png)
 
 AVSegFormer 包含四个关键模块：
 
@@ -70,7 +70,7 @@ AVSegFormer 包含四个关键模块：
         - 多尺度视觉特征 token 序列
     - 输出：$Q_{output} \in \mathbb{R}^{T \times N_q \times D}$
 
-#### Query Generator（查询生成器）
+### Query Generator（查询生成器）
 
 - 初始：$Q_{init} \in \mathbb{R}^{T \times N_q \times D}$
 - 输入: $F_{audio} \in \mathbb{R}^{T \times D}$，作为键与值
@@ -83,7 +83,7 @@ $$
 - 输出: $Q_{mixed} \in \mathbb{R}^{T \times N_q \times D}$
 
 
-#### Transformer Encoder（编码器）
+### Transformer Encoder（编码器）
 
 Transformer Encoder 的输入来自视觉主干（ResNet 或 PVTv2）：
 $$
@@ -152,7 +152,7 @@ $$
 
 论文尝试过两种设计：
 
-![](img/x4.png)
+![](assets/x4.png)
 
 - **Cross-Attention Mixer（CRA）**：效果不佳；
 - **Channel-Attention Mixer（CHA）**：最终采用的方案。
@@ -177,7 +177,7 @@ $$
 \hat{F}_{mask} \in \mathbb{R}^{T \times D \times h \times w}
 $$
 
-![](img/mask.jpeg)
+![](assets/mask.jpeg)
 
 ##### Auxiliary mixing loss （辅助混合损失）
 
@@ -235,7 +235,7 @@ $
 
 #### 整体结果
 
-![](img/result.jpeg)
+![](assets/result.jpeg)
 
 AVSegFormer 在所有子任务上都优于 AVSBench 基线
 
@@ -248,7 +248,7 @@ AVSegFormer 在所有子任务上都优于 AVSBench 基线
 | Audio-Visual Mixer | +2~3% mIoU | Channel-Attention 优于 Cross-Attention |
 | Mixing Loss | +1.5% mIoU | 稳定跨模态特征  |
 
-![](img/exp.jpeg)
+![](assets/exp.jpeg)
 
 - 查询数量 (Number of Queries)
     实验比较了解码器输入查询数为 1、100、200、300 时的性能。结果显示查询数量与性能正相关，最多 300 个查询时表现最佳。这说明更多查询能覆盖更丰富的语义区域，对多声源场景尤为重要。

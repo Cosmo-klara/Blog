@@ -1,0 +1,5 @@
+.astro/
+.github/
+.vercel/
+node_modules/
+.vscode/

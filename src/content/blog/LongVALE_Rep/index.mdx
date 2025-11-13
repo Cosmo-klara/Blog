@@ -9,20 +9,20 @@ tags:
 language: '中文'
 ---
 
-## LongVALE 论文复现
+# LongVALE 论文复现
 
 [项目开源代码](https://github.com/ttgeng233/LongVALE/)
 
-### 复现环境
+## 复现环境
 
-#### 硬件配置
+### 硬件配置
 
 - 系统：`Ubuntu 18.04`
 - CPU：`Intel(R) Xeon(R) Platinum 8280 CPU @ 2.70GHz`
 - GPU：`RTX 3090×8`
 - 内存：`791224272 kB ~ 754.6 GB`
 
-#### 环境配置
+### 环境配置
 
 本项目基于 [VTimeLLM 项目代码](https://github.com/huangb23/VTimeLLM)
 
@@ -42,7 +42,7 @@ pip install "numpy<2.0"
 pip install moviepy==1.0.3
 ```
 
-### 数据集下载
+## 数据集下载
 
 这篇论文有自己的一个数据集，名为 LongVALE，可以从[百度网盘](https://pan.baidu.com/s/1lXh9x14KGcchEYDMkXkf-g?pwd=i6s7)或者 [Hugging Face](https://huggingface.co/datasets/ttgeng233/LongVALE/tree/main) 下载 (不过 Hugging Face 上的数据集是多个压缩包，百度网盘下着方便点，买个闲时下载卡，实验室主机挂一晚上就下好了)，
 
@@ -51,11 +51,32 @@ pip install moviepy==1.0.3
 > 考虑到校园网好像不太够，现在只下载了测试集进行推理，
 
 
-
-### 运行评估代码
+## 运行评估代码
 
 
 ```zsh
-python longvalellm/eval/eval.py --data_path longvale-annotations-eval.json --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task all --log_path log
+python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task all --log_path log
+
+python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task grounding --log_path log
+
+python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task captioning --log_path log
+
+python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task seg_captioning --log_path log
+
+python longvalellm/eval/metric.py  --task grounding --log_path log
 ```
+
+```zsh
+====================== Grounding ======================
+Found 13867 logs
+mIoU: 10.88
+R1@0.3: 15.68
+R1@0.5: 8.62
+R1@0.7: 3.87
+```
+
+|mIoU|R@0.3|R@0.5|R@0.7|
+|:-:|:-:|:-:|:-:|
+|11.0|15.7|8.6|3.9|
+
 

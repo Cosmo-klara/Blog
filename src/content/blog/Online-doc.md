@@ -23,10 +23,11 @@ language: '中文'
 ### 2025-11-13
 
 - Discussion - This week
-    - [ ] LongVLAE 评估结果
-    - [ ] Transformer 论文精读
-    - [ ] Whisper 论文阅读
-    - [ ] Qwen3-omni Aut 实现代码（）
+    - [x] LongVLAE 评估结果
+    - [x] Transformer 论文精读
+    - [x] Whisper 论文阅读
+    - [x] Qwen3-omni Aut 实现代码（）
 
 - TODO
     - [ ] Owen2.5-omni 拿来测试（datasets 重构 / Whisper Lora 数据读取 / HuggingFace 上找类似的 ）
+    - [ ] Datasets 封装

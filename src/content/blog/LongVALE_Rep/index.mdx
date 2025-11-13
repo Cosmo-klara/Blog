@@ -1,7 +1,7 @@
 ---
 title: 'LongVALE 论文复现'
 publishDate: '2025-11-3'
-updatedDate: '2025-11-5'
+updatedDate: '2025-11-12'
 description: 'LongVALE: Vision-Audio-Language-Event Benchmark Towards Time-Aware Omni-Modal Perception of Long Videos——论文复现'
 tags:
     - Record
@@ -53,57 +53,78 @@ pip install moviepy==1.0.3
 
 ## 运行评估代码
 
-
 ```zsh
-python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task all --log_path log
-
-python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task grounding --log_path log
-
-python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task captioning --log_path log
-
-python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task seg_captioning --log_path log
-
-python longvalellm/eval/metric.py  --task grounding --log_path log
+nohup python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task all --log_path log > output.log0 2>&1 &
 ```
-
-
 ### 时序视频定位
 
 ```zsh
-====================== Grounding ======================
-Found 13867 logs
-mIoU: 10.88
-R1@0.3: 15.68
-R1@0.5: 8.62
-R1@0.7: 3.87
+nohup python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task grounding --log_path log > output.log1 2>&1 &    
+python longvalellm/eval/metric.py  --task grounding --log_path log
 ```
 
-|mIoU|R@0.3|R@0.5|R@0.7|
-|:-:|:-:|:-:|:-:|
-|11.0|15.7|8.6|3.9|
+- 评估结果 
 
+    ```zsh
+    ====================== Grounding ======================
+    Found 13867 logs
+    mIoU: 10.88
+    R1@0.3: 15.68
+    R1@0.5: 8.62
+    R1@0.7: 3.87
+    ```
+
+- 和论文结果的对比
+
+    |  | mIoU | R@0.3 | R@0.5 | R@0.7 |
+    |:-:|:-:|:-:|:-:|:-:|
+    | LongVALE |11.0|15.7|8.6|3.9|
+    | Test |10.88|15.68|8.62|3.87|
 
 ### 密集视频字幕生成
 
 ```zsh
-====================== Captioning =====================
-Found 13867 logs
-soda_c: 2.81
-METEOR: 4.69
-CIDEr: 7.77
+nohup python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task captioning --log_path log > output2.log 2>&1 &
+python longvalellm/eval/metric.py  --task captioning --log_path log
 ```
 
-| S | C | M |
-|:-:|:-:|:-:|
-|2.8|7.9|4.7|
+- 评估结果 
+
+    ```zsh
+    ====================== Captioning =====================
+    Found 1171 logs
+    soda_c: 2.80
+    METEOR: 4.68
+    CIDEr: 7.84
+    ```
+
+- 和论文结果的对比
+
+    |  | S | C | M |
+    |:-:|:-:|:-:|:-:|
+    | LongVALE |2.8|7.9|4.7|
+    | Test |2.80|7.84|4.68|
 
 
 
 ### 片段字幕生成
 
-| B | R | C | M |
-|:-:|:-:|:-:|
-|5.6|22.4|20.3|10.9|
+```zsh
+nohup python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task seg_captioning --log_path log > output3.log 2>&1 &
+python longvalellm/eval/metric.py  --task seg_captioning --log_path log
+```
+
+
+- 评估结果 
+
+
+
+- 和论文结果的对比
+
+    |  | B | R | C | M |
+    |:-:|:-:|:-:|:-:|:-:|
+    | LongVALE |5.6|22.4|20.3|10.9|
+    | Test |||||
 
 
 

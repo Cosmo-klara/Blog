@@ -66,6 +66,9 @@ python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_feature
 python longvalellm/eval/metric.py  --task grounding --log_path log
 ```
 
+
+### 时序视频定位
+
 ```zsh
 ====================== Grounding ======================
 Found 13867 logs
@@ -78,5 +81,29 @@ R1@0.7: 3.87
 |mIoU|R@0.3|R@0.5|R@0.7|
 |:-:|:-:|:-:|:-:|
 |11.0|15.7|8.6|3.9|
+
+
+### 密集视频字幕生成
+
+```zsh
+====================== Captioning =====================
+Found 13867 logs
+soda_c: 2.81
+METEOR: 4.69
+CIDEr: 7.77
+```
+
+| S | C | M |
+|:-:|:-:|:-:|
+|2.8|7.9|4.7|
+
+
+
+### 片段字幕生成
+
+| B | R | C | M |
+|:-:|:-:|:-:|
+|5.6|22.4|20.3|10.9|
+
 
 

@@ -129,7 +129,7 @@ import { Spoiler } from 'astro-pure/user'
 
 ### Decoder
 
-解码器在Encoder的基础上，新增了一个子层，对编码器堆的输出执行多头注意力，此外，修改了底部的多头子注意力层，添加了一个 Mask 来阻断解码器关注后续位置的内容。
+解码器在Encoder的基础上，新增了一个子层，对编码器堆的输出执行多头注意力，此外，修改了底部的多头自注意力层，添加了一个 Mask 来阻断解码器关注后续位置的内容。
 
 ![](assets/decoder.png)
 
@@ -143,17 +143,17 @@ import { Spoiler } from 'astro-pure/user'
 
 2. 计算自注意力的第二步是计算 Score（向量相似度，直观上理解就是向量夹角的大小 $A⋅B=∣A∣∣B∣cosθ$，即 Q 与 K 的点积。分数决定了在编码某个位置的词时，应该将多少注意力放在输入句子的其他部分
 
-$$ Score = QK^T, s_1 = q_1k_1^T, s_2 = q_2k_2^T, \dots, s_n = q_nk_n^T $$
+  $$ Score = QK^T, s_1 = q_1k_1^T, s_2 = q_2k_2^T, \dots, s_n = q_nk_n^T $$
 
 3. 第三步是将计算得到的 Score 进行缩放后输入到 softmax 函数中，得到注意力权重。
 
-$$\text{Attention}(Q,K,V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+  $$\text{Attention}(Q,K,V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
 
-- 缩放：防止点积结果过大，从而避免 Softmax 函数进入梯度饱和
+  - 缩放：防止点积结果过大，从而避免 Softmax 函数进入梯度饱和
 
-  $$softmax(x) = e^x / sum(e^x)$$
+    $$softmax(x) = e^x / sum(e^x)$$
 
-  对于非常大或非常小的输入，其梯度会变得接近于 0。这意味着在反向传播时，模型很难学习到有效的权重更新，导致收敛缓慢。
+    对于非常大或非常小的输入，其梯度会变得接近于 0。这意味着在反向传播时，模型很难学习到有效的权重更新，导致收敛缓慢。
 
 4. 第四步是将每个值向量乘以 softmax 分数, 并将这些结果相加。保持想要关注的单词的值不变，通过乘以很小的数（例如 0.001）来忽略无关的单词。
 

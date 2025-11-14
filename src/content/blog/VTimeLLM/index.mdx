@@ -50,13 +50,13 @@ VTimeLLM：赋能 LLM 理解视频时刻
 > 因此帧索引的范围为 0~99, 在描述中使用 “从 s 到 e”,  表示从第 s 帧到第 e 帧
 
 $$
-\hat V ——^{CLIP ViT-L/14}—— ViT(\hat V_i) = \{V_i^{cls}, V_i^{1}, V_i^{2}, \dots, V_i^{p}\}, i = 1, 2, \dots, N,  \text{其中 p 为 ViT 中块数}
+\hat V --^{CLIP ViT-L/14}-- ViT(\hat V_i) = \{V_i^{cls}, V_i^{1}, V_i^{2}, \dots, V_i^{p}\}, i = 1, 2, \dots, N,  \text{其中 p 为 ViT 中块数}
 $$
 
 取每一帧的 cls_token 作为帧特征, 然后通过 linear adapter 映射到 LLM 维度
 
 $$
-V_i^{cls} ——^{Adapter}—— z_i = f(v_i^{cls}) \in \mathbb{R}^{d_{LLM}}
+V_i^{cls} --^{Adapter}-- z_i = f(v_i^{cls}) \in \mathbb{R}^{d_{LLM}}
 $$
 
 全部的视频帧经此处理, 有 $Z = \{z_i\} \in \mathbb{R}^{N \times d_{LLM}}$, 由此, 我们得到了视频 embedding $Z$
@@ -109,7 +109,7 @@ $$
 > 论文中的解释是, 在 2 中, 由于过度关注 grounding 任务, 可能导致 chat 能力下降, 而且 2 中数据集质量一般（自动标注）, 不准确且存在噪声
 
 - 数据集(36k QA)：
-    - 任务数据：（ActivityNet Captions 子集 + DiDeMo 子集）$—^{LLM}—$ 16k QA
+    - 任务数据：（ActivityNet Captions 子集 + DiDeMo 子集）$--^{LLM}--$ 16k QA
     - Chat 数据（描述能力）：VideoInstruct100K 20k QA
 
 - Training Strategy

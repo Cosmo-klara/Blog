@@ -44,7 +44,7 @@ LongVALE：面向长视频时间感知的视觉-音频-语言-事件基准
 
 自动生成 + 人工优化
 
-具体的生成方式论文中有介绍，这里不仔细写了，毕竟只是拿来当 baseline，放张图
+具体的生成方式论文中有介绍, 这里不仔细写了, 毕竟只是拿来当 baseline, 放张图
 
 ![](assets/dataset.jpg)
 
@@ -54,12 +54,12 @@ LongVALE：面向长视频时间感知的视觉-音频-语言-事件基准
 
 ![](assets/struct.jpg)
 
-- LLM: 和 VTimeLLM 一样，用的是 Vicuna1.5-7B
+- LLM: 和 VTimeLLM 一样, 用的是 Vicuna1.5-7B
 - Visual Encoder: 直接用的 VTimeLLM 中的 Visual Encoder, 省去对齐 V-T 的步骤
 - Audio Encoder : BEATS
 - Speech Encoder: Whisper-large-v2
 
-类似 VTimeLLM 进行训练，但是省去了第一步，同时在二三步中加入了对 A/S-Adapter 的训练，和 LoRA 一起。
+类似 VTimeLLM 进行训练, 但是省去了第一步, 同时在二三步中加入了对 A/S-Adapter 的训练, 和 LoRA 一起。
 
 
 

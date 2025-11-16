@@ -17,7 +17,7 @@ language: '中文'
 
 ### 硬件配置
 
-本项目基于 COMBO-AVS，按说明复现大概只能在 mac 或 linux 上进行（`Linux or macOS with Python ≥ 3.6`），在本机 window 上复现失败
+本项目基于 COMBO-AVS, 按说明复现大概只能在 mac 或 linux 上进行（`Linux or macOS with Python ≥ 3.6`）, 在本机 window 上复现失败
 
 ```bash
 # 此步骤后
@@ -26,9 +26,9 @@ detectron2 pip install -e .
 “OSError: [WinError 182] 操作系统无法运行 %1。 Error loading “D:\Cache\PythonLib\envs\vct_avs\lib\site-packages\torch\lib\shm.dll” or one of its dependencies.”
 ```
 
-遂使用实验室服务器进行复现，使用 Trae CN ( 类 VSCode ) 进行 ssh 远程连接服务器 jupyter notebook 的环境我已在实验室服务器（75）上完成配置，直接连接即可使用。
+遂使用实验室服务器进行复现, 使用 Trae CN ( 类 VSCode ) 进行 ssh 远程连接服务器 jupyter notebook 的环境我已在实验室服务器（75）上完成配置, 直接连接即可使用。
 
-> 可以看[实验室服务器连接](../remote.md)中的具体说明，此方法仅可使用 notebook，由于终端无法使用，无法在此上直接运行 py 文件；不过方便的是相当于直接远程操作界面无需手动同步，作为远程代码编辑器也很方便
+> 可以看[实验室服务器连接](../remote.md)中的具体说明, 此方法仅可使用 notebook, 由于终端无法使用, 无法在此上直接运行 py 文件；不过方便的是相当于直接远程操作界面无需手动同步, 作为远程代码编辑器也很方便
 
 - 系统：`Ubuntu 18.04`
 - CPU：`Intel(R) Xeon(R) Platinum 8280 CPU @ 2.70GHz`
@@ -37,7 +37,7 @@ detectron2 pip install -e .
 
 ### 环境配置
 
-在按照官方开源项目的 README 进行复现时出现问题，下载的 pytorch 为 cpu 版本，调整后 PyTorch 1.13.1 和当前下载的 numpy 版本 1.22.4 不兼容，且考虑到 numba 0.58.1 要求 `1.22 <= numpy < 1.27`, 最终使用 1.22.4 版本的 numpy。
+在按照官方开源项目的 README 进行复现时出现问题, 下载的 pytorch 为 cpu 版本, 调整后 PyTorch 1.13.1 和当前下载的 numpy 版本 1.22.4 不兼容, 且考虑到 numba 0.58.1 要求 `1.22 <= numpy < 1.27`, 最终使用 1.22.4 版本的 numpy。
 
 调整后的配置如下：
 
@@ -47,7 +47,7 @@ cd VCT_AVS
 conda create -n vct_avs python==3.8 -y
 conda activate vct_avs
 
-# 加速下载，服务器网不太好，conda 下可能卡半天，还要等他解决环境冲突
+# 加速下载, 服务器网不太好, conda 下可能卡半天, 还要等他解决环境冲突
 pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 -i https://pypi.tuna.tsinghua.edu.cn/simple/ --extra-index-url https://download.pytorch.org/whl/cu117 
 
 git clone https://github.com/facebookresearch/detectron2
@@ -59,7 +59,7 @@ cd ..
 pip install -r requirements.txt
 
 cd models/modeling/pixel_decoder/ops
-# 等待编译完成，大概需要两分钟好像，记不到了
+# 等待编译完成, 大概需要两分钟好像, 记不到了
 bash make.sh
 ```
 
@@ -75,11 +75,11 @@ import { Collapse } from 'astro-pure/user'
     <p>Thank you for your patient response.</p>
 </Collapse>
 
-本论文使用的数据集为 [AVSBench](https://github.com/OpenNLPLab/AVSBench)，~~需要发邮件申请下载(处理邮件好慢，在 HuggingFace 上找到了，不过是 Gated dataset,需要登录 )~~
+本论文使用的数据集为 [AVSBench](https://github.com/OpenNLPLab/AVSBench), ~~需要发邮件申请下载(处理邮件好慢, 在 HuggingFace 上找到了, 不过是 Gated dataset,需要登录 )~~
 
-由于服务器上代理我懒的配置，而且这个月代理流量没多少了，所以采用国内镜像站 https://hf-mirror.com 进行下载。
+由于服务器上代理我懒的配置, 而且这个月代理流量没多少了, 所以采用国内镜像站 https://hf-mirror.com 进行下载。
 
-首先先去开一个 [HuggingFace Access Token](https://huggingface.co/settings/tokens)，格式为 `hf_****`
+首先先去开一个 [HuggingFace Access Token](https://huggingface.co/settings/tokens), 格式为 `hf_****`
 
 ```zsh
 # 可以激活已经安装 huggingface_hub 的 conda 环境来安装哦
@@ -96,14 +96,14 @@ huggingface-cli download --token hf_**** --resume-download --local-dir-use-symli
 
 `your_dir` 换成当前终端工作目录下你要放置数据集的目录
 
-如果觉得下载还是很慢，可以用 hfd，[相关文档链接](https://gist.github.com/padeoe/697678ab8e528b85a2a7bddafea1fa4f#file-hfd-sh)
+如果觉得下载还是很慢, 可以用 hfd, [相关文档链接](https://gist.github.com/padeoe/697678ab8e528b85a2a7bddafea1fa4f#file-hfd-sh)
 
 ```zsh
 alias hfd="$PWD/hfd.sh"
 hfd Exgc/AVSBench --hf_username username --hf_token hf_*** --dataset --local-dir your_dir
 ```
 
-不过还是很慢，要等好久才能下完估计，然后我发现 avss 的数据可以从百度网盘上下，买个闲时下载卡一下子就下完了。
+不过还是很慢, 要等好久才能下完估计, 然后我发现 avss 的数据可以从百度网盘上下, 买个闲时下载卡一下子就下完了。
 
 下载数据集后将其组织如下：
 
@@ -114,7 +114,7 @@ hfd Exgc/AVSBench --hf_username username --hf_token hf_*** --dataset --local-dir
     |--AVSBench_object/Single-source/
 ```
 
-为节省时间，建议直接去 annQi/COMBO-AVS-checkpoints · Hugging Face 上下载预生成的S4\MS3\AVSS 子集 Maskiges，放置目录如下
+为节省时间, 建议直接去 annQi/COMBO-AVS-checkpoints · Hugging Face 上下载预生成的S4\MS3\AVSS 子集 Maskiges, 放置目录如下
 
 ```bash
 |--AVS_dataset
@@ -143,9 +143,9 @@ pip uninstall pillow
 pip install pillow==9.2.0
 ```
 
-如果重新运行还是报错说没有 `detectron2` 模块，重新进行上面对应的安装步骤即可
+如果重新运行还是报错说没有 `detectron2` 模块, 重新进行上面对应的安装步骤即可
 
-此外，还可能提示缺少 `einops` 库，需要安装一下
+此外, 还可能提示缺少 `einops` 库, 需要安装一下
 ```zsh
 pip install einops
 ```

@@ -10,7 +10,7 @@ language: '中文'
 
 # Ngrok 使用记录
 
-> 正好可以把工位的电脑当作这个后端服务器来弄那个卓越工程的事情，不用占着我的电脑了hh
+> 正好可以把工位的电脑当作这个后端服务器来弄那个卓越工程的事情, 不用占着我的电脑了hh
 
 ## Ngrok
 
@@ -28,19 +28,19 @@ import { Collapse } from 'astro-pure/user'
 
 </Collapse>
 
-ngrok 是一款开源的网络服务，能够为在本地运行的网络应用提供公开的、基于互联网的 URL。简单的讲述工作原理就是：
+ngrok 是一款开源的网络服务, 能够为在本地运行的网络应用提供公开的、基于互联网的 URL。简单的讲述工作原理就是：
 
-- 本地机器启动 ngrok，指定一个或多个端口
-- ngrok 在本地机器上建立一个隧道，连接到 ngrok 服务器
-- ngrok 服务器给该隧道分配一个公开 URL，将所有发送至此 URL 的请求转发到本地机器
-- 本地应用程序处理请求并发送响应，响应通过 ngrok 隧道返回到原始请求者
+- 本地机器启动 ngrok, 指定一个或多个端口
+- ngrok 在本地机器上建立一个隧道, 连接到 ngrok 服务器
+- ngrok 服务器给该隧道分配一个公开 URL, 将所有发送至此 URL 的请求转发到本地机器
+- 本地应用程序处理请求并发送响应, 响应通过 ngrok 隧道返回到原始请求者
 
 
 ## Ngrok 安装与配置
 
-打开 [Ngrok 官网](https://ngrok.com/), 右上角 `Log in` 登录账号（使用 Github 或者 Google 账号登录），进入其引导安装文档，按照其提供步骤安装配置即可。
+打开 [Ngrok 官网](https://ngrok.com/), 右上角 `Log in` 登录账号（使用 Github 或者 Google 账号登录）, 进入其引导安装文档, 按照其提供步骤安装配置即可。
 
-Windows 端可以直接用 Mircrosoft Store 安装，也可以用其提供的可执行文件进行安装。安装完成后, 运行:
+Windows 端可以直接用 Mircrosoft Store 安装, 也可以用其提供的可执行文件进行安装。安装完成后, 运行:
 
 ```shell
 ngrok config add-authtoken your_authtoken
@@ -57,12 +57,12 @@ ngrok config add-authtoken your_authtoken
 ngrok http 8080
 ```
 
-ngrok 会输出一个公开的、随机的 URL，访问该 URL 即可访问到本地端口 8080 提供的服务。
+ngrok 会输出一个公开的、随机的 URL, 访问该 URL 即可访问到本地端口 8080 提供的服务。
 
 
 ## 固定访问域名
 
-上述方法生成的访问 URL 是随机的，不利于长期开发和协作，可以在 [ngrok dashboard](https://dashboard.ngrok.com/domains) 中找到提供的免费的固定域名
+上述方法生成的访问 URL 是随机的, 不利于长期开发和协作, 可以在 [ngrok dashboard](https://dashboard.ngrok.com/domains) 中找到提供的免费的固定域名
 
 然后在暴露端口的时候指定域名即可：
 

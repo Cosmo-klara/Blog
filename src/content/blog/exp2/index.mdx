@@ -45,7 +45,7 @@ os.environ["VLLM_USE_MODELSCOPE"] = "True"
 os.environ["CUDA_VISIBLE_DEVICES"] = "1,7"
 ```
 
-#### demo 测试
+#### demo 测试(test)
 
 由于最新提供的 Qwen2.5-omni vllm 示例代码基于较新的 vllm 版本，而在较新的版本中目前还没有对 cu118 进行支持，目前使用的也是旧版的 vllm 库，里面的代码和新代码有点不同
 
@@ -89,7 +89,7 @@ demo 结果：
 
 ![](./assets/1.png)
 
-#### 简单并行测试
+#### 简单并行测试(test)
 
 nccl 存在问题，据说 nvidia-nccl-cu11 中的 nccl 是基于 cu110 编译的，无法使用流功能，需要配置 `enforce_eager=True`（更好的解决方案是重新编译 cu118 的 nccl，或者升级到cu12x）
 
@@ -114,3 +114,66 @@ llm = LLM(
 ```
 
 ![](./assets/2.png)
+
+#### 使用自己的数据，基础测试(test_d, infer)
+
+vllm 传入的是视频帧的数据，音频是从视频中提取的，根据 `vllm/assets/video.py` 里面的 VideoAsset（限制帧为 16 来使用固定的样例视频）
+
+重新实现来加载自己的数据（和Qwen2.5-omni一样）
+
+```py
+def load_video_frames(path, target_fps=2, temporal_patch_size=2, min_frames=4, max_frames=768):
+    cap = cv2.VideoCapture(path)
+    if not cap.isOpened():
+        raise ValueError(f"Could not open video file {path}")
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    video_fps = cap.get(cv2.CAP_PROP_FPS) or 0
+    if video_fps <= 0:
+        desired = min(total, max_frames)
+    else:
+        desired = int(total * target_fps / video_fps)
+    desired = max(min_frames, min(desired, max_frames, total))
+    desired = (desired // temporal_patch_size) * temporal_patch_size
+    desired = max(min_frames, min(desired, total))
+    idxs = np.linspace(0, total - 1, desired, dtype=int)
+    frames = []
+    for i in range(total):
+        ok = cap.grab()
+        if not ok:
+            break
+        if i in idxs:
+            ret, frame = cap.retrieve()
+            if ret:
+                frames.append(frame)
+    frames = np.stack(frames)
+    if len(frames) < desired:
+        raise ValueError(f"expected {desired} frames, got {len(frames)}")
+    return frames
+
+def load_audio_from_video(path, sr=16000):
+    y, _ = librosa.load(path, sr=sr)
+    return y
+```
+
+```zsh
+python test_d.py --video sample_demo_1.mp4 --question "Describe and transcribe."
+python infer.py --video sample_demo_1.mp4
+```
+
+
+#### 使用自己的数据，完整测试(task_infer)
+
+基于之前的数据类，修改 infer 以支持从 json 中读视频描述
+
+可能存在的一个问题：会不会超 token 数目，可能要再看看 VL 的部分
+
+```zsh
+python task_infer.py --data-json longvale-annotations-eval-30s.json --video-dir processed/videos --task grounding
+```
+
+![](./assets/3.png)
+
+
+#### 训练 demo
+
+

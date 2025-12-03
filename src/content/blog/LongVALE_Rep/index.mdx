@@ -87,7 +87,6 @@ python longvalellm/eval/metric.py  --task grounding --log_path log
 ```zsh
 nohup python longvalellm/eval/eval.py --video_feat_folder features_eval/visual_features_1171 --audio_feat_folder features_eval/audio_features_1171 --asr_feat_folder features_eval/speech_features_1171 --task captioning --log_path log > output2.log 2>&1 &
 python longvalellm/eval/metric.py  --task captioning --log_path log
-python longvalellm/eval/metric.py  --task captioning --log_path qwen_3b_eval_fps.log --data_path longvale-annotations-eval-30s.json
 ```
 
 - 评估结果 

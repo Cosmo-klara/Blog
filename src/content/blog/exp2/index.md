@@ -30,7 +30,7 @@ pip install --upgrade uv
 # 下载 xformers-0.0.29.post2-cp312-cp312-manylinux_2_28_x86_64.whl
 # 重命名 xformers-0.0.29.post2-cp312-cp312-manylinux2014_x86_64.whl
 pip install xformers-0.0.29.post2-cp312-cp312-manylinux2014_x86_64.whl
-uv pip install vllm --torch-backend=auto
+uv pip install vllm --torch-backend=auto --no-build-isolation
 ```
 
 

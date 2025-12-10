@@ -101,7 +101,7 @@ https://github.com/huggingface/transformers/blob/main/src/transformers/models/qw
     return indices
 ```
 
-zai这里实现了动态帧采样的帧逻辑：根据输入视频自身的原始 FPS 动态决定采样后的帧数
+在这里实现了动态帧采样的帧逻辑：根据输入视频自身的原始 FPS 动态决定采样后的帧数
 
 ```py
 num_frames = total_num_frames / metadata.fps * fps

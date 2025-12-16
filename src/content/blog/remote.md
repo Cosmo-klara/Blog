@@ -52,6 +52,34 @@ python always_online.py
 ssh 10.1.114.75
 ```
 
+## 服务器使用本机代理
+
+首先打开 clash 或者其他基于此内核的代理软件, 开启允许局域网和系统代理
+
+本机在输入
+
+```shell
+ssh -N -R 7890:localhost:7891 -p 23 <username>@<server_ip>
+```
+
+> 第一个 7890 是本地代理端口, 7891 是远程代理端口
+
+修改环境变量配置代理端口
+
+```bash
+export http_proxy="http://127.0.0.1:7891"
+export https_proxy="http://127.0.0.1:7891"
+```
+
+或者在代码中添加
+
+```python
+import os
+os.environ["http_proxy"] = "http://127.0.0.1:7891"
+os.environ["https_proxy"] = "http://127.0.0.1:7891"
+```
+
+
 ## VSCode 连接
 
 回退版本, 或者在 WSL 中使用旧版本的 vscode 进行连接（这样可以双开）

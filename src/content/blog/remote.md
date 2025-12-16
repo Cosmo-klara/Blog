@@ -59,7 +59,7 @@ ssh 10.1.114.75
 本机在输入
 
 ```shell
-ssh -N -R 7890:localhost:7891 -p 23 <username>@<server_ip>
+ssh -p 22 username@server_ip -R 7890:localhost:7891
 ```
 
 > 第一个 7890 是本地代理端口, 7891 是远程代理端口

@@ -276,4 +276,9 @@ processor = Qwen2_5OmniProcessor.from_pretrained(
 
 在dataset中加载 conversation 部分，然后在用 apply_chat_template 处理，然后调整成批处理就行.调整后可推理的代码在库中 lora.ipynb 里
 
-目前还是爆显存但是
+目前卡在这里
+
+```py
+ValueError: The model did not return a loss from the inputs, only the following keys: logits,rope_deltas. For reference, 
+the inputs it received are input_ids,attention_mask,pixel_values_videos,video_grid_thw,video_second_per_grid,feature_attention_mask,input_features.
+```

@@ -1,7 +1,7 @@
 ---
 title: '实验室服务器连接'
 publishDate: '2025-10-12'
-updatedDate: '2025-11-5'
+updatedDate: '2025-12-16'
 description: '记一下连接远程服务器的步骤'
 tags:
     - Record

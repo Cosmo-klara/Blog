@@ -51,7 +51,13 @@ Apollo: An Exploration of Video Understanding in Large Multimodal Models
 
 等卡，写了一个先把音频提出来的脚本，理论上节省一下训练时提取音频的时间；
 
+明天的工作计划：
 
+1. 看论文，整理 Q-Former 这种架构的思路，主要参考 Apollo: An Exploration of Video Understanding in Large Multimodal Models；这里面提到对于长视频理解的部分可以看看
+
+2. 看 SlowFast-LLaVA-1.5 这个也是长视频理解
+
+3. 考虑是否从仅视觉模型进行训练，在融合音视频上选择 Q-Former 这种架构的思路，用音频作为可选线索辅助视觉模型理解长视频？
 
 
 

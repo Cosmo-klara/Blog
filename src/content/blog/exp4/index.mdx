@@ -16,11 +16,11 @@ language: '中文'
 
 ### 2025-12-18
 
-+ 解决没有 loss 的问题，由于训练数据和 transformer 中标准的格式不同，label 需要自己选择，实现后 labels 有效 token 只剩 <|VIDEO|>，未包含 assistant 文本
++ 解决没有 loss 的问题，由于训练数据和 transformer 中标准的格式不同，label 需要自己选择，实现后 labels 有效 token 只剩 `<|VIDEO|>`，未包含 assistant 文本
 
 debug：一直都是 |VIDEO| 占位符
 
-QwenOmniProcessor 会在 视频 patch 展开后动态插入 <|VIDEO|> token，如果按“字符位置 / 拼接文本”计算 labels，对齐关系会被破坏，assistant token 的真实位置只能在 processor 之后的 input_ids 中确定。在 processor 输出的 input_ids 中定位 <|im_start|> assistant，只对 assistant 回复区间做 label，其余位置置为 -100 mask 掉。
+QwenOmniProcessor 会在 视频 patch 展开后动态插入 `<|VIDEO|>` token，如果按“字符位置 / 拼接文本”计算 labels，对齐关系会被破坏，assistant token 的真实位置只能在 processor 之后的 input_ids 中确定。在 processor 输出的 input_ids 中定位 <|im_start|> assistant，只对 assistant 回复区间做 label，其余位置置为 -100 mask 掉。
 
 + 解决没有梯度的问题，Loss requires_grad: False，loss 有值但 loss.requires_grad=False
 
@@ -175,5 +175,31 @@ def fixed_cross_entropy(
 后面发现 transformers 已经支持了 Liger-Kernel，需要在 TrainingArguments 中启用，还有就是可以开 torch_compile=True ；等跑完一轮试试
 
 #### 后期工作相关
+
+从一个仅视觉的模型出发，扩展到带音频和语音的多模态模型？
+
+LongVALE 三个任务：
+
++ Grounding：事件描述，提示说明结合视觉和音频，输出相对的时间戳
+
++ Captioning：无删减视频，输出全部事件描述及时间戳
+
++ Seg Captioning：给出相对时间戳，输出对应的事件描述
+
+也就是说两个模态的时间信息都要保留，如果直接省去一些帧会影响模型对于时间的判断吧？
+
+那如果要实现去掉冗余帧，应该先按 fps 采样，然后计算每帧的 Token 和全局文本 Token 的注意力权重，在保留注意力得分高的关键视觉 Token 的前提下，动态选择帧采样策略，然后训练模型。不过这样只能学习相对时间的观念吧？因为训练的时候如果用真实时间，但是帧采样率不同会让模型误判时间？
+
+此外，音频 token 该怎么用呢？用音频对应提示吗，按理说音频信息的采用是为了更好的描述视频内容（Captioning 和 Seg Captioning），以及在 Grounding 中参照音频划分多模态的事件边界；所以音频和文本与视频都有相关；该怎么做呢？
+
+和文本是要丰富表述（也相当于是丰富视觉信息？），和视频是要判断边界
+
+
+#### 一些参考论文收集的资料
+
+Apollo: An Exploration of Video Understanding in Large Multimodal Models
+
++ fps 采样在模型训练和推理过程中优于均匀采样
++ 每秒令牌数（tps） 和 fps 之间存在权衡，每帧 8-32 个 token 为最佳。发现对 fps 的依赖性很小，每帧令牌数（tpf）和 tps 更为确定
 
 

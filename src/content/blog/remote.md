@@ -62,21 +62,21 @@ ssh 10.1.114.75
 ssh -p 22 username@server_ip -R 7890:localhost:7891
 ```
 
-> 第一个 7890 是本地代理端口, 7891 是远程代理端口
+> 第一个 7890 是远程代理端口, 7891 是本地代理端口
 
 修改环境变量配置代理端口
 
 ```bash
-export http_proxy="http://127.0.0.1:7891"
-export https_proxy="http://127.0.0.1:7891"
+export http_proxy="http://127.0.0.1:7890"
+export https_proxy="http://127.0.0.1:7890"
 ```
 
 或者在代码中添加
 
 ```python
 import os
-os.environ["http_proxy"] = "http://127.0.0.1:7891"
-os.environ["https_proxy"] = "http://127.0.0.1:7891"
+os.environ["http_proxy"] = "http://127.0.0.1:7890"
+os.environ["https_proxy"] = "http://127.0.0.1:7890"
 ```
 
 

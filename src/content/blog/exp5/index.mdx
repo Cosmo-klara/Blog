@@ -175,7 +175,7 @@ else:
 
 计算的时候就是 16 / 2（merge size） * 28（patch size） = 224, 符合 resize 到 224 * 224 的处理
 
-+ AUDIO 最后剩余的问题：
++ AUDIO token 长度：
 
     添加新的 debug 打印如下：
 
@@ -186,7 +186,21 @@ else:
         audio tokens after encoder: [6422]
     ```
 
-    - 首先是音频总长度 50 * 12 + 5822 = 6442，这个的话和视频总时长有关，视频时长是 25689 * 10ms = 256.89s, audio tokens = (((25689-1) // 2 + 1)-1) // 2 + 1 = 6422
+    首先是音频总长度 50 * 12 + 5822 = 6442，这个的话和视频总时长有关，视频时长是 25689 * 10ms = 256.89s, audio tokens = (((25689-1) // 2 + 1)-2) // 2 + 1 = 6422 ( 1 个音频 token 对应真实 40ms )，所以之前的 50 个音频 token 对应的就是 2s 的时间窗口
+
+    ```py
+        if audio is not None:
+            output_kwargs["audio_kwargs"]["padding"] = "max_length"  # Support "max_length" padding only here
+            audio_inputs = self.feature_extractor(audio, **output_kwargs["audio_kwargs"])
+            audio_inputs["feature_attention_mask"] = audio_inputs.pop(
+                "attention_mask"
+            )  # rename feature_attention_mask to prevent conflicts later on
+            audio_inputs["input_features"] = audio_inputs.pop(
+                "input_features"
+            )  # rename input_features to prevent conflicts later on
+            input_lengths = (audio_inputs["feature_attention_mask"].sum(-1) - 1) // 2 + 1
+            audio_lengths = iter((input_lengths - 2) // 2 + 1)
+    ```
 
 ### 2025-12-26
 
@@ -202,6 +216,134 @@ else:
 ```
 
 这样是可以动态 resize 的，`video_grid_thw` 的变成 `tensor([[25, 16, 30]])`, 动态 resize 到和原比例近似的且能被 28 整除的分辨率；比如这里这个就是 `[640, 360]` 的原始分辨率，resize 成 `[15 * 28, 8 * 28]`， 8 / 15 = 0.5333 近似 360 / 640 = 0.5625；
+
+接续 25 号的 debug
+
+ 所以固定帧采样更新的时间窗口对应的真实时间并没有同步到音频，源码实际上做了这一步操作： len(video_grid_thw) = nframes（帧数） / 2 (temporal_patch_size) = T（视频时长） * fps / 2 (temporal_patch_size)
+
+    ```py
+        second_per_grid_ts = [self.video_processor.temporal_patch_size / fps] * len(video_grid_thw)
+        videos_inputs["video_second_per_grid"] = second_per_grid_ts
+    ```
+
+    相当于默认你的帧数目就是视频总的时长，但是很奇怪的是 `seconds_per_chunk` 又设定的是 2; 完全没用上 second_per_grid_ts 来算时间，所以视频还是 2 帧合成一个 token（认为是 2fps 采样）对应真实时间一秒，接上音频的 50个 token；但是实际的时间关系错了；
+
+    ```py
+    <|vision_bos|>
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 240
+    ├─ AUDIO × 50
+    ├─ VIDEO × 120
+    ├─ AUDIO × 5822
+    <|audio_eos|>
+    ```
+
+    修改成用 fps 采样，限制最大帧数 50 帧 `fps = max_frames（50） / duration`
+
+    ```python
+        batch = self.processor(
+            text=texts,
+            videos=videos,
+            audio=audios,
+            padding=True,
+            return_tensors="pt",
+            videos_kwargs={
+                "max_frames": max_frames,
+                "fps": fps,
+                "do_sample_frames": True, # 必须
+                "do_resize": True,
+                "size" :{
+                    "shortest_edge": 64 * 28 * 28,
+                    "longest_edge": 128 * 28 * 28,
+                },
+                "min_pixels": 224 * 224,
+                "max_pixels": 448 * 224,
+                "use_audio_in_video": True, # 在外部设置无效了
+            },
+            # use_audio_in_video=True,
+        )
+    ```
+
+    报错，需要传 metadata 传进去，能拿到 metadata.fps, 但是没用 metadata.total_num_frames, 能解决；但是好像可以直接在处理视频的时候直接采样 50 帧，然后关闭 processor 中的 `do_sample_frames`，这样就可以不过使用 metadata.fps 和 metadata.total_num_frames 的计算步了
+
+    效果应该是一样的，记录一下目前的配置：
+
+    ```python
+    {"type": "video", "video": sample["video_path"], "nframes": 50},
+    # ...
+    duration = sample["duration"]
+    seconds_per_chunk = duration / num_frames # 这里不用整除 //；时间表示更细
+    fps = num_frames / duration if duration and duration > 0 else 2.0
+    batch = self.processor(
+        text=texts,
+        videos=videos,
+        audio=audios,
+        padding=True,
+        return_tensors="pt",
+        videos_kwargs={
+            "seconds_per_chunk": seconds_per_chunk * 2, # 这里需要 * 2，是因为 temporal_patch_size = 2, 
+            "max_frames": num_frames,
+            "fps": fps,
+            "do_resize": True,
+            "size" :{
+                "shortest_edge": 64 * 28 * 28,
+                "longest_edge": 128 * 28 * 28,
+            },
+            "min_pixels": 224 * 224,
+            "max_pixels": 448 * 224,
+            "use_audio_in_video": True,
+        },
+        # use_audio_in_video=True,
+    )
+    ```
+
+
+    + "seconds_per_chunk": seconds_per_chunk, 时间区间变小，但是因为 temporal_patch_size = 2, 两帧融合导致只有一帧是在多出来的时间窗口内
+
+        ```python
+        <|vision_bos|>
+        ├─ VIDEO × 120
+        ├─ AUDIO × 128
+        ├─ VIDEO × 1
+        ├─ AUDIO × 128
+        ├─ VIDEO × 119
+        ├─ AUDIO × 128
+        ├─ VIDEO × 1
+        ├─ AUDIO × 128
+        ├─ VIDEO × 119
+        ├─ AUDIO × 128
+        ├─ VIDEO × 1
+        ├─ AUDIO × 128
+        ├─ VIDEO × 119
+        ├─ AUDIO × 128
+        ├─ VIDEO × 1
+        # ...
+        ```
+
+### 2025-12-29 - 2025-12-30
+
+
 
 
 

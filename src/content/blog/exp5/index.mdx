@@ -16,5 +16,193 @@ language: '中文'
 
 ### 2025-12-24
 
-核验 longvale 代码，确认其在训练是使用单轮对话多轮对话混合训练，在评估时仅使用单轮对话
++ 核验 longvale 代码，确认其在训练是使用单轮对话多轮对话混合训练，在评估时仅使用单轮对话。
+
++ 重新修改为单轮对话训练，训练数据长度如下：
+
+```py
+print(len(train_dataset))
+# 75075 ( 如果是多轮对话，长度 = 视频数 7240)
+```
+
+这里不同于给出的 91,863 events 是因为在训练数据中存在 captioning 的任务（一个 A 中会包含多个事件）
+
++ 进行一些 baseline 中对于 Qwen2.5-omni的修改的合理性的验证
+
+    总的来说调整的地方如下：
+
+    在 bulid 对话的时候添加参数 `max_frames`，这样在经过 process_mm_info 时会自动限制最大帧数目为 50 帧。
+    ```py
+    {"type": "video", "video": sample["video_path"], "max_frames": 50},
+    ```
+
+    ```py
+    ========== Omni Batch Debug ==========
+    [Text]
+    input_ids: torch.Size([1, 8153])
+    attention_mask: torch.Size([1, 8153])
+    labels: torch.Size([1, 8153])
+    label tokens: 14
+
+    [Video]
+    pixel_values_videos: torch.Size([6400, 1176])
+    dtype: torch.float32
+    video_grid_thw: tensor([[25, 16, 16]])
+    video tensor size: 28.71 MB
+
+    [Audio]
+    input_features: torch.Size([1, 128, 30000]), 14.65 MB
+    =====================================
+
+
+    [SYSTEM]
+    "\nYou are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capab..."
+    "\n"
+
+    [USER]
+    "\n"
+    <|vision_bos|>
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 128
+    ├─ AUDIO × 50
+    ├─ VIDEO × 64
+    ├─ AUDIO × 5822
+    <|audio_eos|>
+    "<video>\nDuring which frames in the video can we observe someone lifts a freshly..."
+    "\n"
+
+    [ASSISTANT]
+    *"\nFrom 83.1% to 85.0%."
+    "\n"
+```
+
+    ```py
+    video_grid_thw: tensor([[25, 16, 16]])
+    tensor([[T, H, W]])
+    T = 时间方向 patch 数, temporal_patch_size = 2 时间上合并一次 token，所以 T = 50 / 2 = 25
+    H = 高方向 patch 数, 原始 ViT patch, video_grid_thw 这里过完 processor 应该已经 merge 了，照理来说应该是 8，但是这里是 16，迷惑
+    W = 宽方向 patch 数
+    ```
+
+    有两个问题：
+    1. 为什么 H / W = 16，而不是 8？
+    2. AUDIO × 5822 最后剩的有点多，几次变更采样帧数目，时间块内的音频 token 数目还是 50 没有变化，时间窗口的大小没有随着采样帧数目更新吗？
+
+
+
+数据记录：
+
+### 2025-12-25
+
++ 测试之前多轮对话训练 epoch 1 的结果，训练配置如下：
+
+```py
+config = LoraConfig(
+    r=16,
+    lora_alpha=16,
+    target_modules=["q_proj", "v_proj", "k_proj", "o_proj", "up_proj", "down_proj"],
+    lora_dropout=0.05,
+    bias="none",
+    # task_type="CAUSAL_LM"
+)
+
+args = TrainingArguments(
+    output_dir="./r_models",
+    remove_unused_columns=False,
+    eval_strategy="no",
+    save_strategy="epoch",
+    learning_rate=1e-4,
+    per_device_train_batch_size=batch_size,
+    gradient_accumulation_steps=1,
+    bf16=True,
+    fp16=False,
+    fp16_full_eval=False,
+    num_train_epochs=2,
+    logging_steps=5,
+    load_best_model_at_end=False,
+)
+```
+
+loss 曲线、学习率曲线和梯度范数曲线如下：
+
+|loss 曲线|学习率曲线|梯度范数曲线|
+|-|-|-|
+|![loss 曲线](assets/loss.png)|![学习率曲线](assets/lr.png)|![梯度范数曲线](assets/grad_norm.png)|
+
++ video_grid_thw 形状的问题：
+
+跟踪了一下 video_grid_thw，发现它返回的是 merge（VL processor 中） 前的尺寸，在 2.5-omni 自己的 processor 里手动除以 merge_size^2 来计算实际 token 数。
+
+```py
+merge_length_video = self.video_processor.merge_size**2
+# ...
+if not use_audio_in_video:
+    video_seq_length = next(video_grid_thw).prod() // merge_length_video
+    sample = sample.replace(self.video_token, "<|video_placeholder|>" * video_seq_length, 1)
+else:
+    audio_token_indices = np.arange(next(audio_lengths))
+    curr_video_grid_thw = next(video_grid_thw)
+    height = curr_video_grid_thw[1] // self.video_processor.merge_size
+    width = curr_video_grid_thw[2] // self.video_processor.merge_size
+    video_token_indices = np.arange(curr_video_grid_thw[0]).reshape(-1, 1, 1)
+    video_token_indices = np.broadcast_to(
+        video_token_indices, (video_token_indices.shape[0], height, width)
+    ).reshape(-1)
+```
+
+所以上面的 `video_grid_thw: tensor([[25, 16, 16]])` 是对的， 16 = 8 * 2（merge size）; 因为是 4 个 patch 合成了一个新 patch（28 * 28）
+
+计算的时候就是 16 / 2（merge size） * 28（patch size） = 224, 符合 resize 到 224 * 224 的处理
+
++ AUDIO 最后剩余的问题：
+
+    添加新的 debug 打印如下：
+
+    ```py
+        [Audio Length]
+        valid mel frames: [25689]
+        audio seconds (approx): [256.8900146484375]
+        audio tokens after encoder: [6422]
+    ```
+
+    - 首先是音频总长度 50 * 12 + 5822 = 6442，这个的话和视频总时长有关，视频时长是 25689 * 10ms = 256.89s, audio tokens = (((25689-1) // 2 + 1)-1) // 2 + 1 = 6422
+
+### 2025-12-26
+
+开大组会，正好提到 Qwen2.5-VL 的动态分辨率，我之前的实现是直接 resize 到 224 * 224，感觉可以直接用它的动态分辨率改参数，之前试过以此，但是不知道为什么给 processor 传 max_pixel 没有效果
+
+读源码,试着用传
+
+```json
+"size" :{
+    "shortest_edge": 64 * 28 * 28,
+    "longest_edge": 128 * 28 * 28,
+}
+```
+
+这样是可以动态 resize 的，`video_grid_thw` 的变成 `tensor([[25, 16, 30]])`, 动态 resize 到和原比例近似的且能被 28 整除的分辨率；比如这里这个就是 `[640, 360]` 的原始分辨率，resize 成 `[15 * 28, 8 * 28]`， 8 / 15 = 0.5333 近似 360 / 640 = 0.5625；
+
+
+
 

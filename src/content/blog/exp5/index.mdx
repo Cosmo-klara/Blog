@@ -378,20 +378,37 @@ else:
 
 + Attention-based audio-centric Compression:
 
-    + Attention in Encoder: [Token Pruning in Audio Transformers](https://arxiv.org/abs/2504.01690) :TopK token 剪枝, 仅保留按注意力分数幅度排名前 K 的音频 token
+    Attention in Encoder: [Token Pruning in Audio Transformers](https://arxiv.org/abs/2504.01690) :TopK token 剪枝, 仅保留按注意力分数幅度排名前 K 的音频 token
 
-    + Attention in Decoder: SpeechPrune: 根据第一层 Transformer 提供的注意力分数对音频 token 进行剪枝
 
 + Query-based audio-centric Compression:
 
-    + Token Distillation: 利用可学习的查询 Token 将全面的音频信息蒸馏为紧凑的固定长度表示
+    + Token Distillation: 利用可学习的查询 Token 将全面的音频信息蒸馏为紧凑的固定长度表示; eg. [SALMONN 系列](https://arxiv.org/html/2406.15704v1)
 
     > 由于 longvale 数据集音频存在指导时间边界的作用, QFomer 压缩会丢失细粒度的时间信息
 
+    ![](assets/SALMONN.png)
+
+
+    MRC Q-Former: 从不同时间分辨率的多长度输入中提取视听特征。详细结构如图所示。首先，同步输入流在多个不同分辨率下被划分为固定长度的窗口，例如每隔 1、5 或 10 秒
+
+    音频和视频帧在每个视频帧（即每 0.5 秒）处同步，通过零填充使两个序列具有相同的长度
+
+    在将所有分辨率的输出查询向量发送至 LLM 之前，会使用一个投影层将它们组合起来
+
 + **Cross-Modal Selection**: [Speechprune](https://arxiv.org/abs/2412.12009): 这是通过计算基于余弦相似性的跨模态相似度矩阵(音频-文本相关性)来实现的，然后用这个矩阵指导音频标记的压缩。(时序信息能在文本中体现出来吗? seg_captioning 和 grounding 的话应该是可以;但是单纯 captioning 的话..)
 
+    ![](assets/SpeechPrune.png)
 
+    检查语音和文本 token 嵌入之间的余弦相似度来移除语义上不相关的语音 token，然后还有一次注意力剪枝, 第一层 Transformer 提供的注意力分数对音频 token 进行 top k 剪枝
 
+然后是两篇比较新的paper
 
+[EchoingPixels: Cross-Modal Adaptive Token Reduction for Efficient Audio-Visual LLMs](https://arxiv.org/abs/2512.10324v1)
 
+![](assets/EP.png)
+
+跨模态编码器, 可以借鉴的是同时段的音视频 token 基于重要性分别打分, 然后分配不同的数目, 可以结合 top k 剪枝
+
+[MMS-LLaMA](https://arxiv.org/abs/2503.11315v2): AV QFormer 预先合并视觉音频模态,然后接 QFormer; 感觉时间上信息损失多, 和 benchmark 可能匹配性不好
 

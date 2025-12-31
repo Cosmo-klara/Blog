@@ -150,6 +150,10 @@ loss 曲线、学习率曲线和梯度范数曲线如下：
 |-|-|-|
 |![loss 曲线](assets/loss.png)|![学习率曲线](assets/lr.png)|![梯度范数曲线](assets/grad_norm.png)|
 
+多轮对话加载数据集，训练一个 epoch 的时间： 15:18:57
+
+没空卡没跑评估
+
 + video_grid_thw 形状的问题：
 
 跟踪了一下 video_grid_thw，发现它返回的是 merge（VL processor 中） 前的尺寸，在 2.5-omni 自己的 processor 里手动除以 merge_size^2 来计算实际 token 数。
@@ -219,7 +223,7 @@ else:
 
 接续 25 号的 debug
 
- 所以固定帧采样更新的时间窗口对应的真实时间并没有同步到音频，源码实际上做了这一步操作： len(video_grid_thw) = nframes（帧数） / 2 (temporal_patch_size) = T（视频时长） * fps / 2 (temporal_patch_size)
+所以固定帧采样更新的时间窗口对应的真实时间并没有同步到音频，源码实际上做了这一步操作： len(video_grid_thw) = nframes（帧数） / 2 (temporal_patch_size) = T（视频时长） * fps / 2 (temporal_patch_size)
 
     ```py
         second_per_grid_ts = [self.video_processor.temporal_patch_size / fps] * len(video_grid_thw)
@@ -314,7 +318,6 @@ else:
             "max_pixels": 448 * 224,
             "use_audio_in_video": True,
         },
-        # use_audio_in_video=True,
     )
     ```
 
@@ -341,7 +344,51 @@ else:
         # ...
         ```
 
+#### 问题 1
+
+我比较了一下在 processor 中进行采样和在 process_mm_info 数据提取中进行帧采样
+
+他们在实现上稍微有所不同，
+
++ process_mm_info 数据提取(这个内存效率高一些)
+
+`idx = torch.linspace(0, total_frames - 1, nframes).round().long()` 生成索引, linspace 是固定首尾，中间均匀插值，保证第 0 帧和最后一帧一定会被选中。索引是整数帧位置，直接映射到视频文件的帧
+
++ processor 中进行采样
+
+`indices = torch.arange(0, total_num_frames, total_num_frames / num_frames).int()`, arange 是固定步长，可能因取整误差导致最后一帧未被选中（比如总帧数不是 50 的整数倍时）。
+
+这样得到的视频帧数据稍有偏差
+
 ### 2025-12-29 - 2025-12-30
+
+这周在看 [Awesome Multimodal Token Compression](https://arxiv.org/abs/2507.20198) （一篇多模态标记压缩的综述）里面提及的论文；
+
+记录一些和音频相关的：
+
++ Token Stacking：将多个连续的 token 沿着 token 的隐藏维度进行堆叠，需要 MLP 重新调整维度。eg. SLAM-ASR、LLaMA-Omni、Llama-AVSR
+
++ Pooling: Qwen2-audio 和 Qwen2.5-Omni 就是步长为 2 的池化；
+
++ Temporal Convolution：对于音频 token，在时间维度上应用 1D 卷积减少 token 数量。 eg. [SpeechVerse](https://arxiv.org/abs/2405.08295)、[Baichuan-Audio](https://arxiv.org/abs/2502.17239)、[OSUM](https://arxiv.org/abs/2501.13306)、[LUCY](https://arxiv.org/abs/2501.16327)
+
++ **Similarity-based audio-centric Compression**: [A-ToMe](https://arxiv.org/abs/2306.16009) 在 MHSA 和 FFN 中间插入一个 token 合并模块，合并具有高余弦相似度的相邻音频 token
+
+    ![](assets/A-ToMe.jpeg): 这个还能保持时间信息
+
++ Attention-based audio-centric Compression:
+
+    + Attention in Encoder: [Token Pruning in Audio Transformers](https://arxiv.org/abs/2504.01690) :TopK token 剪枝, 仅保留按注意力分数幅度排名前 K 的音频 token
+
+    + Attention in Decoder: SpeechPrune: 根据第一层 Transformer 提供的注意力分数对音频 token 进行剪枝
+
++ Query-based audio-centric Compression:
+
+    + Token Distillation: 利用可学习的查询 Token 将全面的音频信息蒸馏为紧凑的固定长度表示
+
+    > 由于 longvale 数据集音频存在指导时间边界的作用, QFomer 压缩会丢失细粒度的时间信息
+
++ **Cross-Modal Selection**: [Speechprune](https://arxiv.org/abs/2412.12009): 这是通过计算基于余弦相似性的跨模态相似度矩阵(音频-文本相关性)来实现的，然后用这个矩阵指导音频标记的压缩。(时序信息能在文本中体现出来吗? seg_captioning 和 grounding 的话应该是可以;但是单纯 captioning 的话..)
 
 
 

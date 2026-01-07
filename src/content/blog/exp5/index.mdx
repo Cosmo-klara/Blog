@@ -442,19 +442,21 @@ else:
 
 ### 2025-12-29 - 2025-12-31
 
-这周在看 [Awesome Multimodal Token Compression](https://arxiv.org/abs/2507.20198) （一篇多模态标记压缩的综述）里面提及的论文；
-
-记录一些和音频相关的：
+看一些和记音频 token 压缩相关的论文：
 
 + Token Stacking：将多个连续的 token 沿着 token 的隐藏维度进行堆叠，需要 MLP 重新调整维度。eg. SLAM-ASR、LLaMA-Omni、Llama-AVSR
 
 + Pooling: Qwen2-audio 和 Qwen2.5-Omni 就是步长为 2 的池化；
 
-+ Temporal Convolution：对于音频 token，在时间维度上应用 1D 卷积减少 token 数量。 eg. [SpeechVerse](https://arxiv.org/abs/2405.08295)、[Baichuan-Audio](https://arxiv.org/abs/2502.17239)、[OSUM](https://arxiv.org/abs/2501.13306)、[LUCY](https://arxiv.org/abs/2501.16327)
++ Temporal Convolution：可学习；在时间维度上应用 1 维卷积减少 token 数量。 eg. [SpeechVerse](https://arxiv.org/abs/2405.08295)、[OSUM](https://arxiv.org/abs/2501.13306)、[LUCY](https://arxiv.org/abs/2501.16327)
 
-+ **Similarity-based audio-centric Compression**: [A-ToMe](https://arxiv.org/abs/2306.16009) 在 MHSA 和 FFN 中间插入一个 token 合并模块，合并具有高余弦相似度的相邻音频 token
++ **Similarity-based audio-centric Compression**: [A-ToMe](https://arxiv.org/abs/2306.16009) 在 MHSA 和 FFN 中间插入一个 token 合并模块，利用自注意力计算中使用的 key values 来计算相邻 token 之间的余弦相似度，合并具有高余弦相似度的相邻音频 token（平均值）
 
-    ![](assets/A-ToMe.jpeg): 这个还能保持时间信息
+    ![](assets/A-ToMe.jpeg)
+
+    每三层嵌入一次 A-ToMe，具体在层 2、5、8、11、14 和 17，每层合并比例的上限为 50%
+
+    在语音信息密集的地方，token密度仍然较高，而在语音信息稀疏或冗余的地方，token密度显著降低。
 
 + Attention-based audio-centric Compression:
 
@@ -466,14 +468,17 @@ else:
 
     + Token Distillation: 利用可学习的查询 Token 将全面的音频信息蒸馏为紧凑的固定长度表示; eg. [SALMONN 系列](https://arxiv.org/html/2406.15704v1)
 
-    > 由于 longvale 数据集音频存在指导时间边界的作用, QFomer 压缩会丢失细粒度的时间信息
+    > 由于 longvale 数据集音频存在指导时间边界的作用, QFomer 压缩会丢失细粒度的时间信息？
 
     ![](assets/SALMONN.png)
 
+    MRC Q-Former: 从不同时间分辨率的多长度输入中提取视听特征。详细结构如图所示。音频和视频帧在每个视频帧（即每 0.5 秒， 2fps）处同步，通过零填充使序列具有相同的长度（256，25）
 
-    MRC Q-Former: 从不同时间分辨率的多长度输入中提取视听特征。详细结构如图所示。首先，同步输入流在多个不同分辨率下被划分为固定长度的窗口，例如每隔 1、5 或 10 秒
+    同步输入流在多个不同分辨率下被划分为固定长度的窗口，例如每隔 1、5 或 10 秒
 
-    音频和视频帧在每个视频帧（即每 0.5 秒）处同步，通过零填充使两个序列具有相同的长度
+    高分辨率滑动窗口覆盖 k = 5每个窗口覆盖 5 帧，使用两个查询向量；低分辨率 Q-Former 覆盖 k = 25，使用 10 个查询向量。这样对于更小的时间窗口，关注局部关键特征，对于长时间窗口，关注更多的特征。（有点像 slowfast 高分辨率低帧率，低分辨率高帧率）
+
+    ![](assets/SALMONN-1.png)
 
     在将所有分辨率的输出查询向量发送至 LLM 之前，会使用一个投影层将它们组合起来
 
@@ -481,17 +486,9 @@ else:
 
     ![](assets/SpeechPrune.png)
 
-    检查语音和文本 token 嵌入之间的余弦相似度来移除语义上不相关的语音 token，然后还有一次注意力剪枝, 第一层 Transformer 提供的注意力分数对音频 token 进行 top k 剪枝
+    检查语音和文本 token 嵌入之间的余弦相似度来移除语义上不相关的语音 token，然后还有一次注意力剪枝, 用第一层 Transformer 提供的注意力分数对音频 token 进行 top k 剪枝
 
-
-
-
-
-
-
-
-
-
+    没有源码
 
 
 ### 2025-01-04

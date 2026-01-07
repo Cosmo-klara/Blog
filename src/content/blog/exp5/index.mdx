@@ -1,7 +1,7 @@
 ---
 title: 'baseline 支持'
 publishDate: '2025-12-24'
-updatedDate: '2025-12-30'
+updatedDate: '2026-1-7'
 description: ''
 tags:
     - Record
@@ -344,6 +344,86 @@ else:
         # ...
         ```
 
+    + 目前的结果：
+
+    ```py
+    ========== Omni Batch Debug ==========
+    [Text]
+    input_ids: torch.Size([1, 8828])
+    attention_mask: torch.Size([1, 8828])
+    labels: torch.Size([1, 8828])
+    label tokens: 14
+    valid text tokens: [8828]
+    label tokens (not -100): [14]
+
+    [Video]
+    pixel_values_videos: torch.Size([9100, 1176])
+    dtype: torch.float32
+    video_grid_thw: tensor([[25, 14, 26]])
+    video tensor size: 40.82 MB
+
+    [Audio]
+    input_features: torch.Size([1, 128, 30000]), 14.65 MB
+
+    [Audio Length]
+    valid mel frames: [25689]
+    audio seconds (approx): [256.8900146484375]
+    audio tokens after encoder: [6422]
+
+    <|vision_bos|>
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 256
+    ├─ VIDEO × 91
+    ├─ AUDIO × 278
+    <|audio_eos|>
+    ```
+
 #### 问题 1
 
 我比较了一下在 processor 中进行采样和在 process_mm_info 数据提取中进行帧采样
@@ -360,7 +440,7 @@ else:
 
 这样得到的视频帧数据稍有偏差
 
-### 2025-12-29 - 2025-12-30
+### 2025-12-29 - 2025-12-31
 
 这周在看 [Awesome Multimodal Token Compression](https://arxiv.org/abs/2507.20198) （一篇多模态标记压缩的综述）里面提及的论文；
 
@@ -403,7 +483,28 @@ else:
 
     检查语音和文本 token 嵌入之间的余弦相似度来移除语义上不相关的语音 token，然后还有一次注意力剪枝, 第一层 Transformer 提供的注意力分数对音频 token 进行 top k 剪枝
 
+
+
+
+
+
+
+
+
+
+
+
+### 2025-01-04
+
 然后是两篇比较新的paper
+
+
+[MMS-LLaMA](https://arxiv.org/abs/2503.11315v2): AV QFormer 预先合并视觉音频模态,然后接 QFormer; 感觉时间上信息损失多, 和 benchmark 可能匹配性不好
+
+
+
+
+这篇我得单独看看：
 
 [EchoingPixels: Cross-Modal Adaptive Token Reduction for Efficient Audio-Visual LLMs](https://arxiv.org/abs/2512.10324v1)
 
@@ -411,5 +512,16 @@ else:
 
 跨模态编码器, 可以借鉴的是同时段的音视频 token 基于重要性分别打分, 然后分配不同的数目, 可以结合 top k 剪枝
 
-[MMS-LLaMA](https://arxiv.org/abs/2503.11315v2): AV QFormer 预先合并视觉音频模态,然后接 QFormer; 感觉时间上信息损失多, 和 benchmark 可能匹配性不好
+
+
+
+### 2025-01-05
+
+
+### 2025-01-06
+
+
+
+
+
 

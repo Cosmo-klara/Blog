@@ -513,7 +513,6 @@ else:
 [EchoingPixels: Cross-Modal Adaptive Token Reduction for Efficient Audio-Visual LLMs](https://arxiv.org/abs/2512.10324v1)
 
 
-
 跨模态编码器, 可以借鉴的是同时段的音视频 token 基于重要性分别打分, 然后分配不同的数目, 可以结合 top k 剪枝
 
 
@@ -603,14 +602,18 @@ TM-RoPE：它将 token 的特征维度 $d$ 将维度 d 依次划分为三个连�
 
 将这种位置编码应用于 CS2 模块和整个 LLM 解码器 （how？）
 
+#### 总结
+
+感觉 EchoingPixels 这个做的已经挺完善了，在音视频直接融合上面，要做或者从音频出发？因为 LongVALE 的特点就是引入了音频影响事件边界，或者从音频 token 压缩入手去引导视频 token 的压缩？
+
+
 ### 2025-01-05 - 2025-01-06
 
-new baseline
++ new baseline：独立不相干的 视觉 token 压缩和音频 token 压缩
 
-独立不相干的 视觉 token 压缩和音频 token 压缩
 
-小实验：压缩效果
 
++ 2594：视频 token 压缩
 
 
 

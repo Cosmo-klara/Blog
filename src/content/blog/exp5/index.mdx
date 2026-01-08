@@ -493,29 +493,126 @@ else:
 
 ### 2025-01-04
 
-然后是两篇比较新的paper
-
+两篇比较新的paper
 
 [MMS-LLaMA](https://arxiv.org/abs/2503.11315v2): AV QFormer 预先合并视觉音频模态,然后接 QFormer; 感觉时间上信息损失多, 和 benchmark 可能匹配性不好
 
+这篇和 SALMONN 都用了QFormer，不过不同的地方挺多
+
+![](assets/MMS-LLaMA.png)
+
++ 首先是音视频 token 在前期融合（三种视听融合策略，拼接，逐元素求和，交叉注意力融合），不过这里有个比较变态的 25 fps，可能是这里因为只用到唇部图像（96*96），
+
++ 使用一个动态调整的查询数量：根据视听特征序列的长度动态分配
+
++ 训练了一个语音速率预测器，也用于控制查询数，语速快信息多，需要更多的查询
 
 
-
-这篇我得单独看看：
+还有一篇比较新的，里面已经实现了动态选择 Visual/Audio token 的压缩比这种思路
 
 [EchoingPixels: Cross-Modal Adaptive Token Reduction for Efficient Audio-Visual LLMs](https://arxiv.org/abs/2512.10324v1)
 
-![](assets/EP.png)
+
 
 跨模态编码器, 可以借鉴的是同时段的音视频 token 基于重要性分别打分, 然后分配不同的数目, 可以结合 top k 剪枝
 
 
+由于音频和视频流具有独特且相互影响的信息密度，对每种模态应用静态、预设的压缩预算是不理想的，如何在联合音频-视频流上执行标记减少仍然是一个问题。
+
+![](assets/A-guide.png)
+
+音频引导 LLM 把视觉集中注意到 eye 上面，LLM 分配视觉
+
+![](assets/A-inform.png)
+
+环境无声音，引导 LLM 集中于视觉信息
+
+token 压缩由跨模态交互来指导
+
+![](assets/EP.png)
+
+在 Qwen2.5-Omni 系列上验证了 EchoingPixels，实验表明，EchoingPixels 仅使用 5-20% 的原始 token 即可达到与强基线相当的性能
+
+两个重要思路：
+
++ Cross-Modal Semantic Sieve：在整体跨模态的上下文中评估每个 token
+
+    原因：
+
+    1. 孤立压缩各模态 token 方法忽视了跨模态协同效应
+    2. 因果注意力解码器进行跨模态融合这种单向流，防止了早期的视频/音频 token 受到后期线索的影响，但是存在比如后面的视频内容对应前面的音频内容这样的状况，反之亦然
+
+    + Cross-Modal Encoder
+
+        + 输入序列的整合：所有输入模态的 token 序列进行拼接。
+
+            视频 token $T_v \in R^{L_v \times D}$、音频 token $T_a \in R^{L_a \times D}$ 和文本指令 token $T_t \in R^{L_t \times D}$。
+
+            拼接后的序列表示为 $T = \text{Concat}(T_v, T_a, T_t)$。
+
+        + 利用预训练 AV-LLM 的能力：复制预训练 LLM 的前 N 个解码器层，并将其作为轻量级的 Cross-Modal Encoder $E(\cdot)$ 进行训练，以增强上下文感知能力。
+
+            双向注意力机制: 序列中较早的 token（例如视频中的早期事件）可以关注较晚的 token（例如音频中的后期事件），反之亦然。
+
+        通过这个过程，Cross-Modal Encoder 产生一个整合的表示 $T'$，其中每个 token 的表示都通过音频-视觉流中的所有其他 token 进行了充分的上下文化：
+
+            $$T' = \text{Concat}(T'_v, T'_a, T'_t) = E(\text{Concat}(T_v, T_a, T_t))$$
+
+    + Adaptive Token Selection
+
+        + Scorer：一个简单的两层 MLP
+
+            将池中的每个音视频 token $T'_i$ 映射到一个标量重要性分数 $s_i$**。这个分数 $s_i$ 量化了该 token 在整个跨模态上下文中的语义价值和信息量。
+
+            $s_i = \text{MLP}(T'_i)$，其中 $i$ 的范围涵盖所有视频和音频 token (从 $1$ 到 $L_v + L_a$)。
+
+        + Top-K Selection（Top-K 选择）
+
+            在计算出所有音视频 token 的重要性分数 $s_i$ 后，根据一个预设的**总 token 预算比例 $p$** 来确定要保留的 token 数量 $k$。
+
+            $k = p \cdot (L_v + L_a)$
+
+            从所有音视频 token 中**选择得分最高的 $k$ 个 token**。这些被选中的 token 构成了压缩后的音视频序列 $T_{comp}$,最终被送入 LLM 的是 $\text{Concat}(T_{\text{comp}}, T'_t)$。
+
+        +  可训练性与 Straight-Through Estimator (STE)：Top-K 操作是一个离散且不可微分的操作, 因此采用了 Straight-Through Estimator (STE) ，这使得最终损失的梯度可以“直通” Top-K 操作，反向传播回 Scorer 的得分 $s_i$。因此，MLP 评分器能够学习如何为那些对最终任务更有益的 token 分配更高的分数。
 
 
-### 2025-01-05
++ Sync-RoPE
+
+引入的两个问题：
+
+1.  无序的双向注意力：不强制保留严格的时间顺序信息，更侧重于全局依赖而非局部顺序。
+
+2.  稀疏且不规则时间序列：只保留了少数“重要”的 token，一个高度稀疏的序列，其中相邻保留的 token 之间存在较大的、不规则的时间间隔。
 
 
-### 2025-01-06
+TM-RoPE：它将 token 的特征维度 $d$ 将维度 d 依次划分为三个连续部分，以表示时序 t 、视频高度 h 和宽度 w ，即 [t,h,w]，时间 $t$ 被分配给最小索引的通道，对应最高的旋转频率。
+
+```json
+// TMRoPE
+"mrope_section": [16,24,24],
+// Sync-RoPE
+"rope_section": [18, 18, 18, 10], // 经实验选择
+```
+
+![](assets/Sync-RoPE.png)
+
+因为稀疏序列的时间间隔较大可能超过高频编码的变化周期，导致无法表示这种时间，不同的时间可能叠加到相似的编码上
+
+把后面较大索引低旋转频率的通道分配给时间
+
+将这种位置编码应用于 CS2 模块和整个 LLM 解码器 （how？）
+
+### 2025-01-05 - 2025-01-06
+
+new baseline
+
+独立不相干的 视觉 token 压缩和音频 token 压缩
+
+小实验：压缩效果
+
+
+
 
 
 

@@ -179,7 +179,7 @@ infer only token 压缩相关的论文：
 
 #### 仅视觉、查询无关方法、空间冗余
 
-+ (VisionZip)[https://arxiv.org/abs/2412.04467v1]: 仅视觉的压缩，不训练的情况下也能有较好的效果，也可简单微调
++ [VisionZip](https://arxiv.org/abs/2412.04467v1): 仅视觉的压缩，不训练的情况下也能有较好的效果，也可简单微调
 
 ![](assets/vmask.png)
 
@@ -208,7 +208,7 @@ Contextual Tokens Merging：其余 token 根据语义相似性进行合并以产
 
 固定的设置
 
-+ (LLaVA-PruMerge)[https://arxiv.org/abs/2403.15388v5]
++ [LLaVA-PruMerge](https://arxiv.org/abs/2403.15388v5)
 
 在 VisionZip 之前的一篇论文，只关注了 CLIP 这类带 cls token 的模型，方法和 VisionZip 几乎一致，区别在于：
 
@@ -221,13 +221,13 @@ Contextual Tokens Merging：其余 token 根据语义相似性进行合并以产
 
 #### 仅视觉、查询相关方法、空间冗余
 
-+ SparseVILA 上周大组会讲的，这个主要是对(SparseVLM)[https://arxiv.org/abs/2410.04417v4] 的一个改进，把视觉-查询剪枝的部分迁移到 decoder 的部分，在 prefill 阶段只进行查询无关剪枝移除冗余视觉 token（其实是保留显著token）
++ SparseVILA 上周大组会讲的，这个主要是对[SparseVLM](https://arxiv.org/abs/2410.04417v4) 的一个改进，把视觉-查询剪枝的部分迁移到 decoder 的部分，在 prefill 阶段只进行查询无关剪枝移除冗余视觉 token（其实是保留显著token）
 
 ![](assets/SparseVILA.png)
 
 #### 仅视觉、查询相关方法、时空冗余
 
-+ (DyCoke)[https://arxiv.org/abs/2411.15024v3]
++ [DyCoke](https://arxiv.org/abs/2411.15024v3)
 
 ![](assets/DyCoke-a.png)
 
@@ -337,8 +337,8 @@ $$S_{\text{cross}} = \hat{H}_a \hat{H}_v^\top$$
 
 数据集：
 
-- (Video-MME)[https://video-mme.github.io/home_page.html]
-- (WorldSense)[]
+- [Video-MME](https://video-mme.github.io/home_page.html)
+- [WorldSense]()
 
 
 

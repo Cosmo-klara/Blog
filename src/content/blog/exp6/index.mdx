@@ -280,12 +280,28 @@ $$ \hat{H} = \text{Diag}\left(\sqrt{\text{diag}(HH^\top) + \varepsilon}\right)^{
 - $\varepsilon$ 是一个非常小的常数，通常设置为 $10^{-6}$，用于避免除以零或数值不稳定性。
 - $\hat{H}$ 是经过L2归一化后的 token 嵌入矩阵。
 
-$$S_{\text{cross}} = \hat{H}_a \hat{H}_v^\top$$
 
 计算跨模态余弦相似度，选择与锚点音频 token 对应配对视频片段最相关的 top‑G 音频标记，并将它们合并到锚点中
 
+$$S_{\text{cross}} = \hat{H}_a \hat{H}_v^\top$$
+
+等到一个 $n_a \times n_v$ 的余弦相似度矩阵，但是后面这里说“选择与配对视频片段最相关的top‑G音频token，并将它们合并到锚点中，其中G是每个锚点合并的token数量。” 这里没太看懂，得看代码
+
 3. 音频指导视频token压缩
 
+设置总视频标记剪枝比例为 $ρ_v$, 在前面两步后，对于每个时间窗口 $i$，OmniZip会计算一个“每窗口音频保留分数” $S_a(i) \in [0, 1]$。这个分数反映了在该时间窗口内信息的重要性或者说密度。
+
+利用 $S_a(i)$ 来动态地为每个时间窗口 $i$ 分配一个初始视频修剪比例 $ \rho_v'(i) = \rho_{\max} - (\rho_{\max} - \rho_{\min}) \cdot S_a(i) $
+
+其中：
+-  $\rho_{\max}$ 是视频修剪率的上限（例如，0.75）。
+-  $\rho_{\min}$ 是视频修剪率的下限（例如，0.35）。
+
+这个公式确保了 $\rho_v'(i)$ 的值介于 $\rho_{\min}$ 和 $\rho_{\max}$ 之间。当 $S_a(i)$ 高时，$\rho_v'(i)$ 接近 $\rho_{\min}$（修剪少）；当 $S_a(i)$ 低时，$\rho_v'(i)$ 接近 $\rho_{\max}$（修剪多）。
+
+在确定了每个时间窗口的最终视频令牌修剪比例后，使用 ISTC（Interleaved Spatio-Temporal Compression）模块来实际执行视频令牌的修剪。
+
+在每个时间窗口内独立执行剪枝，首先计算相邻帧中相同位置标记之间的余弦相似度，类似 DyCoke 的 O 和 E 组计算，对于帧1和帧3中的token，通过基于密度的峰值聚类（DPC‑KNN）应用基于聚类的剪枝？（这个和 DyCoke 不太一样），计算 token 局部密度及其到最近高密度 token 的距离得到一个密度分数，然后剪枝
 
 ### TODO
 

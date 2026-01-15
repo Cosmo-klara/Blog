@@ -200,6 +200,7 @@ Contextual Tokens Merging：其余 token 根据语义相似性进行合并以产
 只关注上一步没有被选中的剩余 token，把这些剩余 token 分成两组：
 
 目标 token (Targets)：从剩余 token 中均匀采样出来的，数量会比总的剩余 token 少很多。
+
 合并 token (Merge)：剩下的所有未被选为目标 token 的 token，最终合并到最相似的目标 token中。
 
 基于相似度（Key Values）合并 token：计算每个合并 token的 Key 和每个目标 token 的 Key 之间的点积。对于每个合并 token，它会被分配到与它相似度最高的那个“目标 token”那里，一旦所有的合并 token 都找到了它们最相似的 目标 token，分配到同一个目标 token 下的所有合并 token 的特征进行平均。

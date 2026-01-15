@@ -1,7 +1,7 @@
 ---
 title: '工作记录文档'
 publishDate: '2025-11-10'
-updatedDate: '2025-12-24'
+updatedDate: '2026-01-14'
 description: '记录每周的工作内容'
 tags:
     - Record
@@ -63,6 +63,8 @@ import { LinkPreview } from 'astro-pure/advanced'
 
 ### 2025-12-04
 
+[详细文档](/blog/exp2)
+
 - Discussion - This week
     - [x] vllm 加速 qwen2.5 / flash attention
 
@@ -71,6 +73,8 @@ import { LinkPreview } from 'astro-pure/advanced'
     - [x] 魔改 Qwen2.5-omni 视频处理模块，跑通前传和 proposal 部分
 
 ### 2025-12-17
+
+[详细文档](/blog/exp3)
 
 - Discussion - This week
     - [x] vit Lora 测试
@@ -82,6 +86,8 @@ import { LinkPreview } from 'astro-pure/advanced'
     - [x] qwen lora
 
 ### 2025-12-24
+
+[详细文档](/blog/exp4)
 
 - Discussion - This week
     - [x] qwen lora
@@ -95,11 +101,28 @@ import { LinkPreview } from 'astro-pure/advanced'
 
 ### 2025-12-31 + 2026-01-08
 
+[详细文档](/blog/exp5)
+
 - Discussion - This week
-    - [ ] baseline中调整合理性的佐证
-    - [ ] 整理长视频理解中音视频token压缩的论文及其方法
-    - [ ] 关于这篇论文[EchoingPixels](https://arxiv.org/abs/2512.10324v1): 这个论文和我目前想做的方法很像，创新：联合多模态压缩还有位置编码的变动
+    - [x] baseline中调整合理性的佐证
+    - [x] 整理长视频理解中音视频token压缩的论文及其方法
+    - [x] 关于这篇论文[EchoingPixels](https://arxiv.org/abs/2512.10324v1): 这个论文和我目前想做的方法很像，创新：联合多模态压缩还有位置编码的变动
 
 - TODO
-    - [ ] EchoingPixels 中多模态联合压缩的尝试
-    - [ ] 
+    - [ ] infer only token 压缩调研
+
+### 2026-1-14
+
+[详细文档](/blog/exp6)
+
+- Discussion - This week
+    - [x] baseline中调整合理性的佐证 - 一致性重测
+    - [x] infer only token 压缩调研
+    - [x] 关于后续工作方向调整的问题，baseline 训练得到的 loss 曲线很差
+
+- TODO
+    - [ ] layer1 attn (AVT)
+    - [ ] lossy  FFT / Audio compress
+    - [ ] h264 关键帧 vs deltas
+    - [ ] pattern visualize\
+    - [ ] 汇总表格

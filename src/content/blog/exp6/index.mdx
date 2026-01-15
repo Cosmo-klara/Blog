@@ -25,27 +25,39 @@ From 83.1% to 85.0%.
 
 ========== Omni Batch Debug ==========
 [Text]
-input_ids: torch.Size([1, 8053]) # 8053 = 1500（V） + 6422（A） + 14（L）+ 117（~L）
+input_ids: torch.Size([1, 8053])
 attention_mask: torch.Size([1, 8053])
 labels: torch.Size([1, 8053])
 label tokens: 14
 valid text tokens: [8053]
 label tokens (not -100): [14]
+```
 
+8053 = 1500（V） + 6422（A） + 14（L）+ 117（~L）
+
+```py
 [Video]
-pixel_values_videos: torch.Size([6000, 1176]) # 6000 = 25 * 12 * 20; merge 后实际 token 数目 / 4 = 1500
+pixel_values_videos: torch.Size([6000, 1176])
 dtype: torch.float32
-video_grid_thw: tensor([[25, 12, 20]]) # 25 个视频帧( T 维度上合并了一次，初始是 50 )，每个视频帧有 12 * 20 个 patch（未合并）
-                                    # 合并后是 6 * 10 个 patch；也就是说合并完成后一帧（对应原始两帧）对应 60 个 patch token
+video_grid_thw: tensor([[25, 12, 20]])
 video tensor size: 26.92 MB
 
+```
+
+6000 = 25 * 12 * 20; merge 后实际 token 数目 / 4 = 1500
+
+25 个视频帧( T 维度上合并了一次，初始是 50 )，每个视频帧有 12 * 20 个 patch（未合并）
+
+合并后是 6 * 10 个 patch；也就是说合并完成后一帧（对应原始两帧）对应 60 个 patch token
+
+```py
 [Audio]
 input_features: torch.Size([1, 128, 30000]), 14.65 MB
 
 [Audio Length]
-valid mel frames: [25689] # 真实音频 mel 帧数 t_real； window = 25 ms，hop = 10 ms，1 个 mel frame ≈ 0.01 s
+valid mel frames: [25689]
 audio seconds (approx): [256.8900146484375]  # 音频真实时长
-audio tokens after encoder: [6422]  # 音频编码后的 token 数，经过两次降采样 1/4，25 fps，实际数值也就等于 t_real / 4
+audio tokens after encoder: [6422]
 
 """
 原始音频 (16kHz)
@@ -55,13 +67,18 @@ Mel频谱: 100帧/秒，每帧基于25ms音频
 音频表示: 25帧/秒，每帧对应40ms音频
 """
 
+```
+
+真实音频 mel 帧数 t_real； window = 25 ms，hop = 10 ms，1 个 mel frame ≈ 0.01 s
+
+音频编码后的 token 数，经过两次降采样 1/4，25 fps，实际数值也就等于 t_real / 4
+
+```py
 =====================================
 
 <|vision_bos|>
-├─ VIDEO × 120  # 一个时间窗口内包含两帧视频帧，用这个对应的时间长度来划分时间窗口，
-                # 时间窗口的大小也就是原始时间的 t_real / 50 * 2(时间压缩一次) * 2（一个窗口放两帧）
-├─ AUDIO × 513  # 相同时间窗口内的对应全部音频帧，也就是 t_real / 4 * 4 / 50 = t_real / 50；
-                # 原始实现是固定 2s 内的音频 token 50 个，然后放视频的 token，视频就是原始 4 帧，时间合并一次 2 帧；
+├─ VIDEO × 120
+├─ AUDIO × 513
 ├─ VIDEO × 120
 ├─ AUDIO × 513 # 6422 * 4 / 50
 ├─ VIDEO × 120
@@ -88,9 +105,17 @@ Mel频谱: 100帧/秒，每帧基于25ms音频
 ├─ AUDIO × 266
 <|audio_eos|>
 
-# 因此最后有 13 个时间窗口（25 帧无法整除，最后一个窗口只有一个视频帧；和剩下的所有音频帧）
+```
 
-# 如果让时间更细一点，可以把让一个时间窗口只覆盖一个视频帧（也就是我目前训练设置的）
+一个时间窗口内包含两帧视频帧，用这个对应的时间长度来划分时间窗口，时间窗口的大小也就是原始时间的 t_real / 50 * 2(时间压缩一次) * 2（一个窗口放两帧）
+
+相同时间窗口内的对应全部音频帧，也就是 t_real / 4 * 4 / 50 = t_real / 50；原始实现是固定 2s 内的音频 token 50 个，然后放视频的 token，视频就是原始 4 帧，时间合并一次 2 帧；
+
+因此最后有 13 个时间窗口（25 帧无法整除，最后一个窗口只有一个视频帧；和剩下的所有音频帧）
+
+如果让时间更细一点，可以把让一个时间窗口只覆盖一个视频帧（也就是我目前训练设置的）
+
+```py
 
 <|vision_bos|>
 ├─ VIDEO × 60

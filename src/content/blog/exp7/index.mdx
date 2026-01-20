@@ -1,0 +1,38 @@
+---
+title: '工作记录文档'
+publishDate: '2026-01-15'
+updatedDate: '2026-01-20'
+description: '记录每周的工作内容'
+tags:
+    - Record
+    - Weekly_work
+language: '中文'
+---
+
+## Record
+
+在  可以获取本周的代码变动
+
+## TODO
+
+- [ ] layer1 attn (AVT)
+- [ ] lossy  FFT / Audio compress
+- [ ] h264 关键帧 vs deltas
+- [ ] pattern visualize\
+- [ ] 汇总表格
+
+### 2026-01-15
+
+h264 的压缩方法：
+
+1、分组：把几帧图像分为一组（GOP，也就是一个序列），为防止运动变化，帧数不宜取多
+2、定义帧：将每组内各帧图像定义为三种类型，即 I 帧、B 帧和P 帧
+3、预测帧：以 I 帧作为基础帧，以 I 帧预测 P 帧，再由 I 帧和 P 帧预测 B 帧
+4、数据传输：最后将 I 帧数据与预测的差值信息进行存储和传输
+
+
+### 2026-01-16
+
+
+### 2026-01-19 - 2026-01-20
+

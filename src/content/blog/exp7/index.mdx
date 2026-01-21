@@ -46,12 +46,40 @@ B帧：
 
 ### 音频 token 压缩：
 
+只记录相关的工作，其他的后续收录到表中：
+
++ SpeechPrune
+
+|模型|压缩比|Tech & Science | Culture & Politics | Daily Life | Film & TV | Performance | Games | Sports | Music | Avg.|
+|------------------------------|------|------|------|------|------|------|------|------|------|------|------|
+|Qwen2.5-omni baseline(V only)|  50% | 48.1 | 48.5 | 42.3 | 43.3 | 39.7 | 43.4 | 42.1 | 43.0 | 44.0 |
 
 
 
+### baseline 设计
+
+fps 配置上使用 Qwen2.5-omni 原生配置 2，分辨率依然使用原生的动态分辨率
+
+视觉上参考 DyCoke 的第一阶段进行剪枝，第一阶段剪枝在预填充阶段，将视频帧序列分组，在组内进行时间维度剪枝 token
+音频上使用音频编码器的最后一层，并计算注意力矩阵，标记重要性量化为每个音频标记从所有其他音频标记接收的平均注意力，以此进行剪枝，低于某个阈值（这个要等实验去看数据集中的分布可能）的音频标记将被移除。
+
+### 实验设计
+
+在 baseline 基础上直接通过计算 V / A 双向注意力后，按照时间块分组进行 V/A token 压缩
+
+在 baseline 基础上，在 V/A 过 MLP 投影且分组交错后加双向注意力得到 N_a + N_v 个 融合token，参照 EchoingPixels ？
 
 
-### 实验结果
+
+### TODO
+
+在 WorldSense 上评估 baseline：
+
+由于 75 上面卡坏了，暂时跑不了实验了, 查了下说是过热或者缺电自我保护断开服务了，得等管服务器的人重启服务器了
+
+```shell
+Unable to determine the device handle for GPU0000:B2:00.0: Unknown Error
+```
 
 
 

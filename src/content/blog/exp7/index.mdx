@@ -15,7 +15,7 @@ language: '中文'
 
 ## TODO
 
-- [ ] layer1 attn (AVT)
+- [x] layer1 attn (AVT)
 - [x] lossy  FFT / Audio compress
 - [x] h264 关键帧 vs deltas
 - [ ] 汇总表格
@@ -48,12 +48,21 @@ B帧：
 
 只记录相关的工作，其他的后续收录到表中：
 
-+ SpeechPrune
++ segmentwise pruning in audio-language models
+
+![](assets/audio_attention.png)
+
+Clotho v2 数据集中一个音频样本（10 秒）中每个标记接收的最大归一化处理后的注意力（ Whisper 编码器最后一层的注意力分配情况，其中每个token从序列中的其他token接收注意力）。橙色：最重要的 10 个token。矩形表示彼此非常接近的重要token组。
+
+![](assets/seg.png)
 
 
+将编码器输出分割为 S 个非重叠的时间区间，并在每个区间内选择相对于整个音频序列具有最高注意力分数的 ⌊K/S⌋ 个token 子集，其中 K 表示要保留的 token 总数。S = 1：标准 Top-K 方法。
 
+也就是注意力从最后一层拿自注意力，然后在窗口内进行 top K/S
 
-> 在 EchoingPixels 中报告的 Qwen2.5-omni-3B 在  WorldSense benchmark 上的得分是 45.4，不过里面说了是 Audio-Visual Tasks
++ 
+
 
 ### baseline 设计
 
@@ -64,12 +73,15 @@ fps 配置上使用 Qwen2.5-omni 原生配置 2，分辨率依然使用原生的
 
 ### 一个实验结果
 
+使用 LMMs‑Eval 进行评估，设置中限制最大帧数为 128 帧，其他不做修改
 
 |模型|压缩比|Tech & Science | Culture & Politics | Daily Life | Film & TV | Performance | Games | Sports | Music | Avg.|
 |------------------------------|------|------|------|------|------|------|------|------|------|------|
 | Qwen2.5-omni-3B（数据来源自 Omnizip 论文） | 100%   | 51.5 | 50.8 | 45.0 | 45.4 | 43.8 | 42.5 | 44.2 | 46.1 | 46.4 |
 | Qwen2.5-omni-3B baseline(V only)* |  50%（V）     | 48.0 | 47.3 | 41.8 | 42.1 | 39.6 | 42.8 | 41.0 | 43.3 | 43.6 |
 | Qwen2.5-omni-3B DyCoke (V&A)      |  50%          | 48.1 | 48.5 | 42.3 | 43.3 | 39.7 | 43.4 | 42.1 | 43.0 | 44.0 |
+
+> 在 EchoingPixels 中报告的 Qwen2.5-omni-3B 在  WorldSense benchmark 上的得分是 45.4，和这里存在差异? 使用 VLMEvalKit 进行评估，且最大帧限制无修改，为 768
 
 
 测的是仅视觉的 token 压缩，采用的 DyCoke 第一阶段类似的方法，分块压缩视觉 token，不过关键帧选择不是默认块的第一帧，选的是块内与其他块平均相似度最低的块（这个我看了 h264 之后感觉或者用相似度最高的作为关键帧也可以，这样其他的压缩相当于就算 P 和 B 帧），其他帧根据关键帧进行冗余度计算，topk剪枝，还有个以此音频剪枝的还没测，卡坏了

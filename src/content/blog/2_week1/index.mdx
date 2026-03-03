@@ -29,6 +29,12 @@ language: '中文'
 
 ![](assets/attn_llm_1.png)
 
+规律特点统计：
+
++ 早期层中音频 token 占据了相当高的注意力，随着 llm 层数加深，注意力逐渐分给部分视觉 token
+
++ 在 llm 早期层中，后一时间块的 Vision token 和 前一时间块的 Audio token 相互注意
+
 
 
 ### 相关论文

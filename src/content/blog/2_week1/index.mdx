@@ -39,13 +39,50 @@ language: '中文'
 
 #### 一些论文
 
-优于 Omnizip 表现的一篇论文，不过好像不是 training-free 的
+优于 Omnizip 表现的一篇论文，不是 training-free, 25 %
 
 ![](assets/OmniSIFT.png)
 
+论文把 Omni-LLMs 的 token 压缩分为 3 类范式
+
+![](assets/FS.png)
+
+- 模态解耦压缩：独立 V / A token 压缩
+
+- 模态对称压缩: 视为同等信息进行压缩
+
+- 模态非对称压缩（？其实就是一者引导吧。。。）：本文先剪枝 V token，然后用 V 引导 A token 压缩
+
+> 这篇论文提到了两篇我先前调研过的工作：Omnizip 和 EchoingPixels。Omnizip 没法用 Flash-attn，EchoingPixels 的话 引入额外开销（多余 LLM 解码层来做双向注意力）
+
+两个核心模块：
+
+- STVP ( Spatio-Temporal Video Pruning ): 时间 + 空间冗余
+
+    ![](assets/STVP.png)
 
 
+- VGAS ( Vision-Guided Audio Selector ): 用 V token 引导 A token 压缩
+
+    ![](assets/VGAS.png)
 
 
+STVP：两阶段剪枝
+
+空间冗余：
+
+> 可能得看消融实验，感觉做法有点奇怪，直接平均池化作为基准的话如果相邻块差距本身较大。。。
+
+    帧内 token 平均池化作为全局平均向量，定义 token 的空间显著性为 该 token 与全局平均向量的余弦距离
+
+时间冗余：
+
+    帧间对应 token 计算余弦距离
+
+？没懂时空冗余之间怎么联合使用的，最后只提到用 $a_v$ 选保留的 token 数 K，然后 topK 就行
+
+VGAS：一个轻量化的交叉注意力，Q 是 A token， K,V 是剪枝后的视觉 token
+
+交叉注意力得到带视觉信息的音频表示 $H_a$, 通过一个 MLP（2）接一个 Sigmoid 进行投影得到显著性分数，同样 TopK 选 token，因为 TopK 不可微，用 STE 训练
 
 

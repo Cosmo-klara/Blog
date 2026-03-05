@@ -11,8 +11,6 @@ language: '中文'
 
 ## Record
 
-### TODO
-
 - [ ] 补一个 token 数统计
 - [ ] attn-llm 规律分析
 - [ ] 看论文
@@ -34,9 +32,9 @@ language: '中文'
 
 ### 论文
 
-#### OmniSIFT: 
+#### OmniSIFT:
 
-优于 Omnizip 表现的一篇论文，不是 training-free, 25 %
+优于 Omnizip 表现的一篇论文，不是 training-free, 25 %，暂时没开源
 
 ![](assets/SIFT.png)
 
@@ -50,7 +48,7 @@ language: '中文'
 
 - 模态非对称压缩（？其实就是一者引导吧。。。）：本文先剪枝 V token，然后用 V 引导 A token 压缩
 
-> 这篇论文提到了两篇我先前调研过的工作：Omnizip 和 EchoingPixels。Omnizip 没法用 Flash-attn，EchoingPixels 的话 引入额外开销（多余 LLM 解码层来做双向注意力）
+> 这篇论文提到了两篇我先前调研过的工作：Omnizip 和 EchoingPixels。Omnizip 没法用 Flash-attn，EchoingPixels 的话引入额外开销（多余 LLM 解码层来做双向注意力）
 
 两个核心模块：
 
@@ -64,24 +62,37 @@ language: '中文'
     ![](assets/VGAS.png)
 
 
-STVP：两阶段剪枝
+**STVP：两阶段剪枝**
+
+两帧一组
 
 空间冗余：
 
 > 可能得看消融实验，感觉做法有点奇怪，直接平均池化作为基准的话如果相邻块差距本身较大。。。
 
-    帧内 token 平均池化作为全局平均向量，定义 token 的空间显著性为 该 token 与全局平均向量的余弦距离
+    只在组内第一帧进行，帧内 token 平均池化作为全局平均向量，定义 token 的空间显著性为该 token 与全局平均向量的余弦距离
 
 时间冗余：
 
     帧间对应 token 计算余弦距离
 
-？没懂时空冗余之间怎么联合使用的，最后只提到用 $a_v$ 选保留的 token 数 K，然后 topK 就行
+空间冗余和时间冗余分别 top K，相同的 K；
 
-VGAS：一个轻量化的交叉注意力，Q 是 A token， K,V 是剪枝后的视觉 token
+> 这里存疑的地方在于时间冗余的处理是选用了帧内所有 token 进行计算，还是对于空间冗余 top K 后的得到的 k 个 token 再进行计算更好。后者的话总体保留率就不一样了，在先前的一个工作中有提到这种方法，不过按照论文的说法应该是前者。
 
-交叉注意力得到带视觉信息的音频表示 $H_a$, 通过一个 MLP（2）接一个 Sigmoid 进行投影得到显著性分数，同样 TopK 选 token，因为 TopK 不可微，用 STE 训练
+**VGAS：一个轻量化的交叉注意力，Q 是 A token， K,V 是剪枝后的视觉 token**
 
+对于每个多模态块 $C_t$，VGAS 接收两个输入：
+
+- 完整的音频令牌序列 $Z^(t)_a$：** 原始的、未压缩的音频令牌，维度为 $R^(n_a × D)$。
+
+- 剪枝后的视频令牌序列 $Ẑ^(t)_v$：** 这是由 STVP 模块生成的、已经过压缩的视觉表示，维度为 $R^(ˆn_v × D)$。
+
+$$H^(t)_a = Softmax((Q_a K^⊤_v) / √d) V_v$$
+
+利用一个轻量级的跨注意力机制，其中音频令牌充当查询 $Q_a$，而剪枝后的视频令牌构成键 $K_v$ 和值 $V_v$。
+
+计算交叉注意力得到带视觉信息的音频表示 $H_a$, 然后通过一个 MLP（2）接一个 Sigmoid 激活函数（分数在0-1），得到显著性分数，同样 TopK 选 token，因为 TopK 不可微，用 STE 训练
 
 #### Token Pruning in Multimodal Large Language Models: Are We Solving the Right Problem?
 
@@ -170,3 +181,13 @@ averaged-tokens 就是原始公式计算所有文本 token 注意力分数然后
 此外，由于注意力剪枝存在末尾 token 容易获得更高的分数的问题（上一篇论文中提到），有一个重平衡操作： Top K —> Top K', K'>K, 先选择比实际更多的 token，然后优先选择位置在序列前半部分的 token，然后再从后半部分选择 token 补足 K。
 
 > 这篇论文中剪枝层选择的部分可以借鉴一下用来分析在哪些层剪枝更合适
+
+
+### TODO
+
+- [ ] 剪枝层选择的分析
+- [ ] 
+- [ ] 看论文
+
+
+

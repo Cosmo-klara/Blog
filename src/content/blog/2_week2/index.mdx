@@ -1,0 +1,53 @@
+---
+title: 'week1 Record'
+publishDate: '2026-03-06'
+updatedDate: '2026-03-11'
+description: '记录每周的工作内容'
+tags:
+    - Record
+    - Weekly_work
+language: '中文'
+---
+
+## Record
+
+### 本周工作
+
+- [x] 剪枝层选择的分析实验
+- [x] V / A token 变化实验
+- [x] baseline 实验
+
+
+### 剪枝层选择的分析实验
+
+![](assets/modality_attention_distribution_average_7.png)
+
+### V / A token 变化实验
+
+
+
+### baseline 实验
+
+第一个实验仅压缩视觉 token 保留率 50 %，第二个实验压缩视觉 token 保留率 40 % 音频 token 保留率 70 %（不太准确），没发现更新后 config 不一样
+
+| Model | fps | overall_accuracy | Music | Culture & Politics | Tech & Science | Daily Life | Film & TV | Sports | Performance | Games |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Qwen2.5-omni-3B(bf16，V) | 0.5 | 45.5 | 43.8 | 51.5 | 50.8 | 43.8 | 43.8 | 43.0 | 45.3 | 42.1 |
+| Qwen2.5-omni-3B(bf16，V+A) | 0.5 | 44.9 | 44.8 | 46.9 | 50.2 | 43.9 | 44.3 | 41.2 | 43.1 | 43.3 |
+
+Audio 压缩方法：和 Omnizip 保持一致，在音频 encoder 最后一层自注意力里算出来的注意力矩阵，再聚合成一维重要性分数：
+
+在音频 encoder 的 forward 里，对最后一层传 return_logits = True，多头平均后，对 query 维求和，得到每个 token 被关注总量的 1D 分数；这里有个需要注意的，因为音频 token 到 llm 前有下采样，所以这里这个分数需要按 2 做平均下采样；这样索引才对的上。
+
+然后在 top k 来压缩 token，top k 未选中的 token 中按照索引均匀保留一定比例的 token。
+
+
+VIDEO 压缩方法：时空压缩
+
+四帧一组， 0，1，2，3
+
+在 0，2 帧中，平均池化得到一个 token，和这个 token 计算余弦相似度作为多样性的评估指标，保留 top k。
+
+1，3 帧和其前一帧 0，2 帧进行逐位置的 token 计算余弦相似度，保留相似度低的 token。
+
+

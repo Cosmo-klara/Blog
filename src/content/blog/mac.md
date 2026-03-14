@@ -15,7 +15,6 @@ language: '中文'
 
 ## App 列表
 
-### Homebrew
 
 [Homebrew](https://brew.sh/) 是一个 macOS 下的包管理器，可以通过它安装许多软件。
 
@@ -76,8 +75,6 @@ brew install --cask easyfind
 - [Pure Paste](https://apps.apple.com/cn/app/pure-paste/id1611378436?mt=12)：剪贴板移除格式工具，可以移除剪贴板中的格式，保留纯文本
 
 ### Github
-
-先放一份 Star List 在这里：[zhuozhiyongde / Mac](https://github.com/stars/zhuozhiyongde/lists/mac)
 
 - [Ice](https://github.com/jordanbaird/Ice)：菜单栏管理器
 - [Rectangle](https://github.com/rxhanson/Rectangle)：窗口管理，分屏工具。出了新一代 Rectangle 2，但功能上没差，不需要升级

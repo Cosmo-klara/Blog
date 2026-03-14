@@ -1,7 +1,7 @@
 ---
 title: 'week1 Record'
 publishDate: '2026-03-06'
-updatedDate: '2026-03-11'
+updatedDate: '2026-03-13'
 description: '记录每周的工作内容'
 tags:
     - Record
@@ -17,6 +17,7 @@ language: '中文'
 - [x] V / A token 变化实验
 - [x] baseline 实验
 
+> 实验部分只做图示
 
 ### 剪枝层选择的分析实验
 
@@ -24,16 +25,28 @@ language: '中文'
 
 ### V / A token 变化实验
 
+![](assets/audio_token_cosine_adjacent_below_thresholds_hzbpQzOo.png)
 
+![](assets/video_token_cosine_adjacent_below_thresholds_hzbpQzOo.png)
+
+### V / A token 彼此注意力变化实验
+
+![](assets/va_cross_attention_average_7.png)
+
+![](assets/va_cross_attention_hzbpQzOo.png)
 
 ### baseline 实验
 
-第一个实验仅压缩视觉 token 保留率 50 %，第二个实验压缩视觉 token 保留率 40 % 音频 token 保留率 70 %（不太准确），没发现更新后 config 不一样
+第一个实验仅压缩视觉 token 保留率 50 %，第二个实验压缩视觉 token 保留率 40 % 音频 token 保留率 70 %，~~没发现更新后 config 不一样~~, 补充实验已做
+
+> V/A 括号内为冗余去除率 = 1 - 保留率
 
 | Model | fps | overall_accuracy | Music | Culture & Politics | Tech & Science | Daily Life | Film & TV | Sports | Performance | Games |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Qwen2.5-omni-3B(bf16，V) | 0.5 | 45.5 | 43.8 | 51.5 | 50.8 | 43.8 | 43.8 | 43.0 | 45.3 | 42.1 |
-| Qwen2.5-omni-3B(bf16，V+A) | 0.5 | 44.9 | 44.8 | 46.9 | 50.2 | 43.9 | 44.3 | 41.2 | 43.1 | 43.3 |
+| Qwen2.5-omni-3B(bf16，V(0.5)) | 0.5 | 45.5 | 43.8 | 51.5 | 50.8 | 43.8 | 43.8 | 43.0 | 45.3 | 42.1 |
+| Qwen2.5-omni-3B(bf16，V(0.6)+A(0.3)) | 0.5 | 44.9 | 44.8 | 46.9 | 50.2 | 43.9 | 44.3 | 41.2 | 43.1 | 43.3 |
+| Qwen2.5-omni-3B(bf16，V(0.5)+A(0.5)) | 0.5 | 44.7 | 43.3 | 46.3 | 49.8 | 44.1 | 43.8 | 42.1 | 42.7 | 44.6 |
+| Qwen2.5-omni-3B(bf16，V(0.5)+A(0.3)) | 0.5 | 45.1 | 44.6 | 48.2 | 50.0 | 43.8 | 44.1 | 42.1 | 43.8 | 44.2 |
 
 Audio 压缩方法：和 Omnizip 保持一致，在音频 encoder 最后一层自注意力里算出来的注意力矩阵，再聚合成一维重要性分数：
 

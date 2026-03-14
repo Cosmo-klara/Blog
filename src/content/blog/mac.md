@@ -173,8 +173,6 @@ brew install --cask easyfind
 
 ## CLI
 
-依旧是先放一个 Star List：[zhuozhiyongde / Tools](https://github.com/stars/zhuozhiyongde/lists/tools)。
-
 ### Zsh
 
 我使用 [rcm](https://github.com/thoughtbot/rcm) 来管理配置文件 dotfiles, 通过 rcm 可以将配置文件备份至 `~/.dotfiles`，也可以从 `~/.dotfiles` 通过软连接的形式还原备份至 `~`。

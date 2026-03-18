@@ -16,62 +16,58 @@ const authed = verifyTodoAuthToken(token)
 <PageLayout title='TODO' {headings}>
   <h2 id='auth'>Auth</h2>
 
-  {
-    authed ? (
-      <div class='not-prose flex items-center gap-3'>
-        <p class='m-0 text-sm text-muted-foreground'>已登录（cookie 记住状态）</p>
-        <button class='rounded-md border px-3 py-1.5 text-sm' id='todo-logout-btn' type='button'>
-          Logout
-        </button>
+  {authed && (
+    <div class='not-prose flex items-center gap-3'>
+      <p class='m-0 text-sm text-muted-foreground'>已登录（cookie 记住状态）</p>
+      <button class='rounded-md border px-3 py-1.5 text-sm' id='todo-logout-btn' type='button'>
+        Logout
+      </button>
+    </div>
+  )}
+
+  <div class='todo-protected not-prose' data-locked={authed ? 'false' : 'true'}>
+    <div class='todo-protected-content'>
+      <h2 id='todo' class='not-prose'>TODO</h2>
+      <ul class='not-prose'>
+        <li>整理实验记录到博客</li>
+        <li>补齐部署/监控说明文档</li>
+        <li>页面：支持更清晰的任务分组（Inbox / Doing / Done）</li>
+      </ul>
+      <p class='mt-3 text-sm text-muted-foreground'>
+        提示：当前 TODO 内容写在页面里，你也可以后续改成从 JSON/Markdown 读取。
+      </p>
+    </div>
+
+    {!authed && (
+      <div class='todo-protected-overlay'>
+        <div class='todo-protected-panel'>
+          <p class='m-0 text-sm text-muted-foreground'>权限不足：请输入四位密码后才能查看内容。</p>
+          <form class='mt-3 flex items-center gap-3' id='todo-login-form'>
+            <input
+              class='w-36 rounded-md border bg-background px-3 py-2 text-sm'
+              inputmode='numeric'
+              autocomplete='one-time-code'
+              pattern='\\d{4}'
+              maxlength='4'
+              minlength='4'
+              name='pin'
+              placeholder='4-digit PIN'
+              required
+            />
+            <button class='rounded-md border px-3 py-2 text-sm' type='submit'>
+              Login
+            </button>
+          </form>
+          <p class='m-0 mt-3 text-sm text-muted-foreground' id='todo-login-msg'></p>
+        </div>
       </div>
-    ) : (
-      <>
-        <p class='text-muted-foreground'>权限不足：请输入四位密码后才能查看本页内容。</p>
-
-        <form class='not-prose flex items-center gap-3' id='todo-login-form'>
-          <input
-            class='w-36 rounded-md border bg-background px-3 py-2 text-sm'
-            inputmode='numeric'
-            autocomplete='one-time-code'
-            pattern='\\d{4}'
-            maxlength='4'
-            minlength='4'
-            name='pin'
-            placeholder='4-digit PIN'
-            required
-          />
-          <button class='rounded-md border px-3 py-2 text-sm' type='submit'>
-            Login
-          </button>
-          <span class='text-sm text-muted-foreground' id='todo-login-msg' />
-        </form>
-      </>
-    )
-  }
-
-  <h2 id='todo'>TODO</h2>
-
-  {
-    authed ? (
-      <>
-        <ul>
-          <li>整理实验记录到博客</li>
-          <li>补齐部署/监控说明文档</li>
-          <li>页面：支持更清晰的任务分组（Inbox / Doing / Done）</li>
-        </ul>
-        <p class='text-muted-foreground'>
-          提示：当前 TODO 内容写在页面里，你也可以后续改成从 JSON/Markdown 读取。
-        </p>
-      </>
-    ) : (
-      <p class='text-muted-foreground'>登录后显示 TODO 列表。</p>
-    )
-  }
+    )}
+  </div>
 </PageLayout>
 
 <script>
   const loginForm = document.getElementById('todo-login-form') as HTMLFormElement | null
-  const loginMsg = document.getElementById('todo-login-msg') as HTMLSpanElement | null
+  const loginMsg = document.getElementById('todo-login-msg') as HTMLParagraphElement | null
   const logoutBtn = document.getElementById('todo-logout-btn') as HTMLButtonElement | null
 
   loginForm?.addEventListener('submit', async (e) => {
@@ -107,3 +103,44 @@ const authed = verifyTodoAuthToken(token)
     window.location.reload()
   })
 </script>
+
+<style>
+  .todo-protected {
+    position: relative;
+    border-radius: 0.75rem;
+  }
+
+  .todo-protected-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: hsl(var(--background) / 0.55);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+  }
+
+  :global(.dark) .todo-protected-overlay {
+    background: hsl(var(--muted) / 0.45);
+  }
+
+  .todo-protected-panel {
+    width: min(92vw, 26rem);
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--border) / 1);
+    background: hsl(var(--background) / 0.55);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    padding: 1rem;
+  }
+
+  :global(.dark) .todo-protected-panel {
+    background: hsl(var(--muted) / 0.35);
+  }
+
+  [data-locked='true'] .todo-protected-content {
+    user-select: none;
+  }
+</style>

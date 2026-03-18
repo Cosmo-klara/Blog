@@ -70,9 +70,9 @@ const authed = verifyTodoAuthToken(token)
 </PageLayout>
 
 <script>
-  const loginForm = document.getElementById('todo-login-form')
-  const loginMsg = document.getElementById('todo-login-msg')
-  const logoutBtn = document.getElementById('todo-logout-btn')
+  const loginForm = document.getElementById('todo-login-form') as HTMLFormElement | null
+  const loginMsg = document.getElementById('todo-login-msg') as HTMLSpanElement | null
+  const logoutBtn = document.getElementById('todo-logout-btn') as HTMLButtonElement | null
 
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -80,6 +80,8 @@ const authed = verifyTodoAuthToken(token)
 
     loginMsg.textContent = 'Checking...'
     const form = e.currentTarget
+    if (!(form instanceof HTMLFormElement)) return
+
     const fd = new FormData(form)
     const pin = String(fd.get('pin') || '')
 

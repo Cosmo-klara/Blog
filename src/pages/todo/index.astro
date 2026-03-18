@@ -15,7 +15,7 @@ const headings = authed
   : [{ depth: 2, slug: 'auth', text: 'Auth' }]
 ---
 
-<PageLayout title='TODO' {headings}>
+<PageLayout title='TODO Record' {headings}>
 
   {authed && (
     <div class='not-prose flex items-center gap-3'>
@@ -49,12 +49,26 @@ const headings = authed
   ) : (
     <>
       <h2 id='todo'>TODO</h2>
-      <ul>
-        <li>整理实验记录到博客</li>
-        <li>补齐部署/监控说明文档</li>
-        <li>页面：支持更清晰的任务分组（Inbox / Doing / Done）</li>
-      </ul>
-      <p class='text-muted-foreground'>提示：当前 TODO 内容写在页面里，你也可以后续改成从 JSON/Markdown 读取。</p>
+      <ul id='todo-list'></ul>
+
+      <div class='todo-editor not-prose'>
+        <p class='m-0 text-sm text-muted-foreground'>每行一条 TODO，点保存后会写入当前浏览器的本地存储。</p>
+        <textarea
+          id='todo-editor'
+          class='mt-3 w-full rounded-md border bg-background px-3 py-2 text-sm'
+          rows={10}
+          spellcheck='false'
+        ></textarea>
+        <div class='mt-3 flex items-center gap-3'>
+          <button class='rounded-md border px-3 py-2 text-sm' id='todo-save-btn' type='button'>
+            Save
+          </button>
+          <button class='rounded-md border px-3 py-2 text-sm' id='todo-reset-btn' type='button'>
+            Reset
+          </button>
+          <p class='m-0 text-sm text-muted-foreground' id='todo-save-msg'></p>
+        </div>
+      </div>
     </>
   )}
 </PageLayout>
@@ -95,6 +109,64 @@ const headings = authed
   logoutBtn?.addEventListener('click', () => {
     window.location.href = '/api/todo/logout?next=/todo'
   })
+
+  const TODO_LOCAL_STORAGE_KEY = 'todo_content'
+  const DEFAULT_TODO = ['整理实验记录到博客', '补齐部署/监控说明文档', '页面：支持更清晰的任务分组（Inbox / Doing / Done）'].join('\n')
+
+  const todoEditor = document.getElementById('todo-editor') as HTMLTextAreaElement | null
+  const todoList = document.getElementById('todo-list') as HTMLUListElement | null
+  const todoSaveBtn = document.getElementById('todo-save-btn') as HTMLButtonElement | null
+  const todoResetBtn = document.getElementById('todo-reset-btn') as HTMLButtonElement | null
+  const todoSaveMsg = document.getElementById('todo-save-msg') as HTMLParagraphElement | null
+
+  const normalizeLine = (line: string) => line.replace(/^\s*[-*]\s+/, '').trim()
+
+  const renderTodoList = (raw: string) => {
+    if (!todoList) return
+    todoList.innerHTML = ''
+
+    const lines = raw
+      .split(/\r?\n/)
+      .map(normalizeLine)
+      .filter(Boolean)
+
+    for (const line of lines) {
+      const li = document.createElement('li')
+      li.textContent = line
+      todoList.appendChild(li)
+    }
+  }
+
+  const loadTodo = () => {
+    if (!todoEditor) return
+    const raw = localStorage.getItem(TODO_LOCAL_STORAGE_KEY) ?? DEFAULT_TODO
+    todoEditor.value = raw
+    renderTodoList(raw)
+  }
+
+  const saveTodo = () => {
+    if (!todoEditor) return
+    const raw = todoEditor.value
+    localStorage.setItem(TODO_LOCAL_STORAGE_KEY, raw)
+    renderTodoList(raw)
+    if (todoSaveMsg) todoSaveMsg.textContent = 'Saved.'
+  }
+
+  todoEditor?.addEventListener('input', () => {
+    if (!todoEditor) return
+    renderTodoList(todoEditor.value)
+    if (todoSaveMsg) todoSaveMsg.textContent = ''
+  })
+
+  todoSaveBtn?.addEventListener('click', saveTodo)
+
+  todoResetBtn?.addEventListener('click', () => {
+    localStorage.removeItem(TODO_LOCAL_STORAGE_KEY)
+    loadTodo()
+    if (todoSaveMsg) todoSaveMsg.textContent = 'Reset.'
+  })
+
+  loadTodo()
 </script>
 
 <style>
@@ -113,6 +185,14 @@ const headings = authed
     box-shadow:
       0 20px 60px hsl(var(--foreground) / 0.12),
       0 1px 0 hsl(var(--foreground) / 0.06) inset;
+  }
+
+  #todo-list {
+    margin-top: 1rem;
+  }
+
+  .todo-editor {
+    margin-top: 1.25rem;
   }
 
   :global(.dark) .todo-login-card {

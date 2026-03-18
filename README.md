@@ -82,20 +82,16 @@ cd astro-theme-pure
 有用的命令：
 
 ```shell
-# install dependencies
+# Install dependencies
 bun install
-
-# start the dev server
+# Start the dev server
 bun dev
-
-# build the project
+# Build the project
 bun run build
-
-# preview (after the build)
+# Preview (after the build)
 bun preview
-
-# create a new post
-bun new-post
+# Create a new post
+bun pure new
 ```
 
 ## 贡献
@@ -108,7 +104,7 @@ bun new-post
 - [Astro Resume](https://github.com/srleom/astro-theme-resume)
 - [Starlight](https://github.com/withastro/starlight)
 
-其他第三方参考资料在 [Docs#Contributions](https://astro-pure.js.org/docs/advanced/thanks) 上。感谢所有开源库。
+Other third party references are on [Docs#Contributions](https://astro-pure.js.org/docs/advanced/about). Appreciate for all open source libraries.
 
 ## 许可证
 

@@ -43,7 +43,7 @@ const { class: className } = Astro.props
       )
 
       walineInit({
-        el: '#waline',
+        el: 'comment-component #waline',
         serverURL: walineConfig.server || '',
         emoji,
         reaction: ['/icons/heart-item.svg'],
@@ -54,6 +54,12 @@ const { class: className } = Astro.props
 
   if (walineConfig.enable) customElements.define('comment-component', Comment)
 </script>
+
+{
+  config.integ.waline.showMeta &&(
+    <style> #waline :global(.wl-meta) { display: none; } </style>
+  )
+}
 
 <style>
   /* Basic theme */
@@ -106,9 +112,6 @@ const { class: className } = Astro.props
   #waline :global(a) {
     display: inline-block;
   }
-  #waline :global(.wl-item, .wl-card-item) {
-    overflow: hidden;
-  }
 
   /* Reaction buttons */
   #waline :global(.wl-reaction-title, .wl-reaction-text) {
@@ -147,7 +150,6 @@ const { class: className } = Astro.props
     background: var(--waline-theme-color);
     color: var(--waline-bg-color);
   }
-
   #waline :global(.wl-reaction-votes:after) {
     margin-left: 0.25em;
     content: 'Like(s)';

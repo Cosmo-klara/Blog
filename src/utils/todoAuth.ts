@@ -49,7 +49,7 @@ export function verifyTodoAuthToken(token: string | undefined | null) {
 export function getTodoCookieOptions() {
     return {
         httpOnly: true,
-        secure: true,
+        secure: import.meta.env.PROD,
         sameSite: 'lax' as const,
         path: '/',
         maxAge: TODO_AUTH_COOKIE_MAX_AGE_SECONDS

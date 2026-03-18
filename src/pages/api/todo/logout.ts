@@ -4,6 +4,8 @@ import { getTodoCookieOptions, TODO_AUTH_COOKIE_NAME } from '@/utils/todoAuth'
 export const prerender = false
 
 export const POST: APIRoute = async ({ cookies }) => {
-    cookies.delete(TODO_AUTH_COOKIE_NAME, { path: getTodoCookieOptions().path })
+    const base = getTodoCookieOptions()
+    cookies.set(TODO_AUTH_COOKIE_NAME, '', { ...base, maxAge: 0 })
+    cookies.delete(TODO_AUTH_COOKIE_NAME, { path: base.path })
     return Response.json({ ok: true })
 }

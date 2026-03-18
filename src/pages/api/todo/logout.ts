@@ -5,7 +5,13 @@ export const prerender = false
 
 export const POST: APIRoute = async ({ cookies }) => {
     const base = getTodoCookieOptions()
-    cookies.set(TODO_AUTH_COOKIE_NAME, '', { ...base, maxAge: 0 })
-    cookies.delete(TODO_AUTH_COOKIE_NAME, { path: base.path })
+    const expires = new Date(0)
+
+    cookies.set(TODO_AUTH_COOKIE_NAME, '', { ...base, maxAge: 0, expires, path: '/' })
+    cookies.delete(TODO_AUTH_COOKIE_NAME, { path: '/' })
+
+    cookies.set(TODO_AUTH_COOKIE_NAME, '', { ...base, maxAge: 0, expires, path: '/todo' })
+    cookies.delete(TODO_AUTH_COOKIE_NAME, { path: '/todo' })
+
     return Response.json({ ok: true })
 }

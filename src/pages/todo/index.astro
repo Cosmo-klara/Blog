@@ -4,13 +4,15 @@ import { TODO_AUTH_COOKIE_NAME, verifyTodoAuthToken } from '@/utils/todoAuth'
 
 export const prerender = false
 
-const headings = [
-  { depth: 2, slug: 'auth', text: 'Auth' },
-  { depth: 2, slug: 'todo', text: 'TODO' }
-]
-
 const token = Astro.cookies.get(TODO_AUTH_COOKIE_NAME)?.value
 const authed = verifyTodoAuthToken(token)
+
+const headings = authed
+  ? [
+      { depth: 2, slug: 'auth', text: 'Auth' },
+      { depth: 2, slug: 'todo', text: 'TODO' }
+    ]
+  : [{ depth: 2, slug: 'auth', text: 'Auth' }]
 ---
 
 <PageLayout title='TODO' {headings}>
@@ -25,17 +27,9 @@ const authed = verifyTodoAuthToken(token)
     </div>
   )}
 
-  <h2 id='todo'>TODO</h2>
-  <ul>
-    <li>整理实验记录到博客</li>
-    <li>补齐部署/监控说明文档</li>
-    <li>页面：支持更清晰的任务分组（Inbox / Doing / Done）</li>
-  </ul>
-  <p class='text-muted-foreground'>提示：当前 TODO 内容写在页面里，你也可以后续改成从 JSON/Markdown 读取。</p>
-
-  {!authed && (
-    <div class='todo-lock-overlay' aria-label='TODO authentication overlay'>
-      <div class='todo-lock-panel'>
+  {!authed ? (
+    <div class='todo-login-wrap not-prose'>
+      <div class='todo-login-card'>
         <p class='m-0 text-sm text-muted-foreground'>权限不足：请输入四位密码后才能查看内容。</p>
         <form class='mt-3 flex items-center gap-3' id='todo-login-form'>
           <input
@@ -54,22 +48,16 @@ const authed = verifyTodoAuthToken(token)
         <p class='m-0 mt-3 text-sm text-muted-foreground' id='todo-login-msg'></p>
       </div>
     </div>
-  )}
-
-  {!authed && (
-    <style>
-      :global(body) {
-        overflow: hidden;
-      }
-
-      :global(#content-header),
-      :global(#content),
-      :global(.bottom) {
-        pointer-events: none;
-        user-select: none;
-        -webkit-user-select: none;
-      }
-    </style>
+  ) : (
+    <>
+      <h2 id='todo'>TODO</h2>
+      <ul>
+        <li>整理实验记录到博客</li>
+        <li>补齐部署/监控说明文档</li>
+        <li>页面：支持更清晰的任务分组（Inbox / Doing / Done）</li>
+      </ul>
+      <p class='text-muted-foreground'>提示：当前 TODO 内容写在页面里，你也可以后续改成从 JSON/Markdown 读取。</p>
+    </>
   )}
 </PageLayout>
 
@@ -106,45 +94,30 @@ const authed = verifyTodoAuthToken(token)
     }
   })
 
-  logoutBtn?.addEventListener('click', async () => {
-    await fetch('/api/todo/logout', { method: 'POST' }).catch(() => {})
-    window.location.reload()
+  logoutBtn?.addEventListener('click', () => {
+    window.location.href = '/api/todo/logout?next=/todo'
   })
 </script>
 
 <style>
-  .todo-lock-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
+  .todo-login-wrap {
     display: grid;
     place-items: center;
-    padding: 1.25rem;
-
-    background: hsl(var(--background) / 0.82);
-    backdrop-filter: blur(60px) saturate(120%);
-    -webkit-backdrop-filter: blur(60px) saturate(120%);
+    padding: 2rem 0;
   }
 
-  .todo-lock-panel {
-    width: min(92vw, 56rem);
-    min-height: min(72vh, 44rem);
-    border-radius: 1rem;
+  .todo-login-card {
+    width: min(92vw, 26rem);
+    border-radius: 0.75rem;
     border: 1px solid hsl(var(--border) / 1);
-    background: hsl(var(--background) / 0.45);
-    backdrop-filter: blur(70px) saturate(130%);
-    -webkit-backdrop-filter: blur(70px) saturate(130%);
-    padding: 1.25rem;
+    background: hsl(var(--background) / 1);
+    padding: 1rem;
     box-shadow:
-      0 30px 120px hsl(var(--foreground) / 0.22),
-      0 1px 0 hsl(var(--foreground) / 0.12) inset;
+      0 20px 60px hsl(var(--foreground) / 0.12),
+      0 1px 0 hsl(var(--foreground) / 0.06) inset;
   }
 
-  :global(.dark) .todo-lock-overlay {
-    background: hsl(var(--background) / 0.7);
-  }
-
-  :global(.dark) .todo-lock-panel {
-    background: hsl(var(--muted) / 0.28);
+  :global(.dark) .todo-login-card {
+    background: hsl(var(--muted) / 0.7);
   }
 </style>

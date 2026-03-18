@@ -20,9 +20,15 @@ const getRootDomain = (host: string) => {
     return parts.slice(-2).join('.')
 }
 
-const clearTodoAuthCookie = (cookies: any, request: Request) => {
+const toSameSite = (v: 'lax' | 'strict' | 'none') => {
+    if (v === 'strict') return 'Strict'
+    if (v === 'none') return 'None'
+    return 'Lax'
+}
+
+const appendClearTodoAuthCookies = (headers: Headers, request: Request) => {
     const base = getTodoCookieOptions()
-    const expires = new Date(0)
+    const expires = new Date(0).toUTCString()
 
     const host = getHost(request)
     const root = getRootDomain(host)
@@ -36,38 +42,40 @@ const clearTodoAuthCookie = (cookies: any, request: Request) => {
 
     for (const domain of domains) {
         for (const path of paths) {
-            cookies.set(TODO_AUTH_COOKIE_NAME, '', {
-                ...base,
-                path,
-                expires,
-                maxAge: 0,
-                ...(domain ? { domain } : {})
-            })
+            const parts: string[] = []
+            parts.push(`${TODO_AUTH_COOKIE_NAME}=`)
+            parts.push('Max-Age=0')
+            parts.push(`Expires=${expires}`)
+            parts.push(`Path=${path}`)
+            if (domain) parts.push(`Domain=${domain}`)
+            if (base.httpOnly) parts.push('HttpOnly')
+            if (base.secure) parts.push('Secure')
+            parts.push(`SameSite=${toSameSite(base.sameSite)}`)
+
+            headers.append('set-cookie', parts.join('; '))
         }
     }
 }
 
-export const GET: APIRoute = async ({ cookies, request }) => {
-    clearTodoAuthCookie(cookies, request)
-
+export const GET: APIRoute = async ({ request }) => {
     const url = new URL(request.url)
     const next = url.searchParams.get('next') || '/todo'
 
-    return new Response(null, {
-        status: 303,
-        headers: {
-            location: next,
-            'cache-control': 'no-store'
-        }
+    const headers = new Headers({
+        location: next,
+        'cache-control': 'no-store'
     })
+    appendClearTodoAuthCookies(headers, request)
+
+    return new Response(null, { status: 303, headers })
 }
 
-export const POST: APIRoute = async ({ cookies, request }) => {
-    clearTodoAuthCookie(cookies, request)
-    return new Response(JSON.stringify({ ok: true }), {
-        headers: {
-            'content-type': 'application/json; charset=utf-8',
-            'cache-control': 'no-store'
-        }
+export const POST: APIRoute = async ({ request }) => {
+    const headers = new Headers({
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store'
     })
+    appendClearTodoAuthCookies(headers, request)
+
+    return new Response(JSON.stringify({ ok: true }), { headers })
 }

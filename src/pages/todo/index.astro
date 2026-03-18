@@ -25,44 +25,55 @@ const authed = verifyTodoAuthToken(token)
     </div>
   )}
 
-  <div class='todo-protected not-prose' data-locked={authed ? 'false' : 'true'}>
-    <div class='todo-protected-content'>
-      <h2 id='todo' class='not-prose'>TODO</h2>
-      <ul class='not-prose'>
-        <li>整理实验记录到博客</li>
-        <li>补齐部署/监控说明文档</li>
-        <li>页面：支持更清晰的任务分组（Inbox / Doing / Done）</li>
-      </ul>
-      <p class='mt-3 text-sm text-muted-foreground'>
-        提示：当前 TODO 内容写在页面里，你也可以后续改成从 JSON/Markdown 读取。
-      </p>
-    </div>
+  <h2 id='todo'>TODO</h2>
+  <ul>
+    <li>整理实验记录到博客</li>
+    <li>补齐部署/监控说明文档</li>
+    <li>页面：支持更清晰的任务分组（Inbox / Doing / Done）</li>
+  </ul>
+  <p class='text-muted-foreground'>提示：当前 TODO 内容写在页面里，你也可以后续改成从 JSON/Markdown 读取。</p>
 
-    {!authed && (
-      <div class='todo-protected-overlay'>
-        <div class='todo-protected-panel'>
-          <p class='m-0 text-sm text-muted-foreground'>权限不足：请输入四位密码后才能查看内容。</p>
-          <form class='mt-3 flex items-center gap-3' id='todo-login-form'>
-            <input
-              class='w-36 rounded-md border bg-background px-3 py-2 text-sm'
-              inputmode='numeric'
-              autocomplete='one-time-code'
-              pattern='\\d{4}'
-              maxlength='4'
-              minlength='4'
-              name='pin'
-              placeholder='4-digit PIN'
-              required
-            />
-            <button class='rounded-md border px-3 py-2 text-sm' type='submit'>
-              Login
-            </button>
-          </form>
-          <p class='m-0 mt-3 text-sm text-muted-foreground' id='todo-login-msg'></p>
-        </div>
+  {!authed && (
+    <div class='todo-lock-overlay' aria-label='TODO authentication overlay'>
+      <div class='todo-lock-panel'>
+        <p class='m-0 text-sm text-muted-foreground'>权限不足：请输入四位密码后才能查看内容。</p>
+        <form class='mt-3 flex items-center gap-3' id='todo-login-form'>
+          <input
+            class='w-36 rounded-md border bg-background px-3 py-2 text-sm'
+            inputmode='numeric'
+            autocomplete='one-time-code'
+            pattern='\\d{4}'
+            maxlength='4'
+            minlength='4'
+            name='pin'
+            placeholder='4-digit PIN'
+            required
+          />
+          <button class='rounded-md border px-3 py-2 text-sm' type='submit'>Login</button>
+        </form>
+        <p class='m-0 mt-3 text-sm text-muted-foreground' id='todo-login-msg'></p>
       </div>
-    )}
-  </div>
+    </div>
+  )}
+
+  {!authed && (
+    <style>
+      :global(body) {
+        overflow: hidden;
+      }
+
+      :global(#content-header),
+      :global(#content),
+      :global(.bottom) {
+        filter: blur(64px);
+        opacity: 0.05;
+        transform: translateZ(0);
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+    </style>
+  )}
 </PageLayout>
 
 <script>
@@ -105,42 +116,32 @@ const authed = verifyTodoAuthToken(token)
 </script>
 
 <style>
-  .todo-protected {
-    position: relative;
-    border-radius: 0.75rem;
-  }
-
-  .todo-protected-overlay {
-    position: absolute;
+  .todo-lock-overlay {
+    position: fixed;
     inset: 0;
+    z-index: 40;
     display: grid;
     place-items: center;
     padding: 1rem;
-    border-radius: 0.75rem;
-    background: hsl(var(--background) / 0.55);
-    backdrop-filter: blur(14px) saturate(160%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    background: hsl(var(--background) / 0.68);
   }
 
-  :global(.dark) .todo-protected-overlay {
-    background: hsl(var(--muted) / 0.45);
-  }
-
-  .todo-protected-panel {
+  .todo-lock-panel {
     width: min(92vw, 26rem);
     border-radius: 0.75rem;
     border: 1px solid hsl(var(--border) / 1);
-    background: hsl(var(--background) / 0.55);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    background: hsl(var(--background) / 0.92);
     padding: 1rem;
+    box-shadow:
+      0 30px 80px hsl(var(--foreground) / 0.18),
+      0 1px 0 hsl(var(--foreground) / 0.06) inset;
   }
 
-  :global(.dark) .todo-protected-panel {
-    background: hsl(var(--muted) / 0.35);
+  :global(.dark) .todo-lock-overlay {
+    background: hsl(var(--background) / 0.5);
   }
 
-  [data-locked='true'] .todo-protected-content {
-    user-select: none;
+  :global(.dark) .todo-lock-panel {
+    background: hsl(var(--muted) / 0.9);
   }
 </style>

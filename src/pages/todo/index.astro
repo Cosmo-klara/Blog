@@ -16,11 +16,9 @@ const headings = authed
 ---
 
 <PageLayout title='TODO' {headings}>
-  <h2 id='auth'>Auth</h2>
 
   {authed && (
     <div class='not-prose flex items-center gap-3'>
-      <p class='m-0 text-sm text-muted-foreground'>已登录（cookie 记住状态）</p>
       <button class='rounded-md border px-3 py-1.5 text-sm' id='todo-logout-btn' type='button'>
         Logout
       </button>
@@ -30,7 +28,7 @@ const headings = authed
   {!authed ? (
     <div class='todo-login-wrap not-prose'>
       <div class='todo-login-card'>
-        <p class='m-0 text-sm text-muted-foreground'>权限不足：请输入四位密码后才能查看内容。</p>
+        <p class='m-0 text-sm text-muted-foreground'>权限不足：请输入四位密码后查看内容。</p>
         <form class='mt-3 flex items-center gap-3' id='todo-login-form'>
           <input
             class='w-36 rounded-md border bg-background px-3 py-2 text-sm'

@@ -47,10 +47,19 @@ const clearTodoAuthCookie = (cookies: any, request: Request) => {
     }
 }
 
-export const GET: APIRoute = async ({ cookies, request, url }) => {
+export const GET: APIRoute = async ({ cookies, request }) => {
     clearTodoAuthCookie(cookies, request)
+
+    const url = new URL(request.url)
     const next = url.searchParams.get('next') || '/todo'
-    return Response.redirect(next, 303)
+
+    return new Response(null, {
+        status: 303,
+        headers: {
+            location: next,
+            'cache-control': 'no-store'
+        }
+    })
 }
 
 export const POST: APIRoute = async ({ cookies, request }) => {

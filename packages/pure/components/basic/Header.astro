@@ -157,7 +157,7 @@ import { Icon } from '../user'
     }
   }
 
-  function openTodoAuthDialog(targetUrl) {
+  function openTodoAuthDialog(targetUrl: string) {
     const dialog = document.getElementById('todo-auth-dialog') as HTMLDialogElement | null
     if (!dialog) return
 

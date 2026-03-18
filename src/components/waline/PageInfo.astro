@@ -1,5 +1,4 @@
 ---
-import { cn } from 'astro-pure/utils'
 import Pageview from '@/components/waline/Pageview.astro'
 
 interface Props {
@@ -8,9 +7,7 @@ interface Props {
   class?: string
 }
 
-const { view, comment, class: className, ...props } = Astro.props
-
-const path = Astro.url.pathname
+const { view, comment } = Astro.props
 ---
 
 <!-- <div class={cn('text-base text-sm text-muted-foreground', className)} {...props}>

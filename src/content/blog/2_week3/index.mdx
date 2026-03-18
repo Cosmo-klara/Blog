@@ -1,0 +1,29 @@
+---
+title: 'week2 Record'
+publishDate: '2026-03-06'
+updatedDate: '2026-03-13'
+description: '记录每周的工作内容'
+tags:
+    - Record
+    - Weekly_work
+    - PaperReading
+language: '中文'
+---
+
+## Record
+
+### 本周工作
+
+- [x] baseline 实验 (原始模型在 wolrdsense 上的表现，token 数统计)
+- [x] 关于分层剪枝的论文
+- [x] TTT
+
+| Model | fps | overall_accuracy | Music | Culture & Politics | Tech & Science | Daily Life | Film & TV | Sports | Performance | Games |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Qwen2.5-omni-3B(bf16，Full tokens) | 2 | 46.4 | 46.1 | 50.8 | 51.5 | 45.0 | 45.4 | 44.2 | 43.8 | 42.5 |
+| Qwen2.5-omni-3B(bf16，Full tokens) | 0.5 | 45.5 | 43.8 | 51.5 | 50.8 | 43.8 | 43.8 | 43.0 | 45.3 | 42.1 |
+| Qwen2.5-omni-3B(bf16，V(0.6)+A(0.3)) | 0.5 | 44.9 | 44.8 | 46.9 | 50.2 | 43.9 | 44.3 | 41.2 | 43.1 | 43.3 |
+| Qwen2.5-omni-3B(bf16，V(0.5)+A(0.5)) | 0.5 | 44.7 | 43.3 | 46.3 | 49.8 | 44.1 | 43.8 | 42.1 | 42.7 | 44.6 |
+| Qwen2.5-omni-3B(bf16，V(0.5)+A(0.3)) | 0.5 | 45.1 | 44.6 | 48.2 | 50.0 | 43.8 | 44.1 | 42.1 | 43.8 | 44.2 |
+
+

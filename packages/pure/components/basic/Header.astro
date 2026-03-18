@@ -63,6 +63,41 @@ import { Icon } from '../user'
   </div>
 </header-component>
 
+<dialog
+  id='todo-auth-dialog'
+  class='todo-auth-dialog rounded-xl border bg-background text-foreground p-0'
+>
+  <div class='not-prose w-[min(92vw,26rem)] p-4 sm:p-5'>
+    <div class='mb-3'>
+      <h3 class='m-0 text-base font-medium'>TODO 权限验证</h3>
+      <p class='m-0 mt-1 text-sm text-muted-foreground'>请输入四位密码后继续</p>
+    </div>
+
+    <form id='todo-auth-dialog-form' class='flex items-center gap-3'>
+      <input
+        id='todo-auth-pin'
+        class='w-28 rounded-md border bg-background px-3 py-2 text-sm'
+        inputmode='numeric'
+        autocomplete='one-time-code'
+        pattern='\d{4}'
+        maxlength='4'
+        minlength='4'
+        name='pin'
+        placeholder='PIN'
+        required
+      />
+      <button class='rounded-md border px-3 py-2 text-sm' type='submit'>
+        Login
+      </button>
+      <button class='rounded-md border px-3 py-2 text-sm text-muted-foreground' id='todo-auth-cancel' type='button'>
+        Cancel
+      </button>
+    </form>
+
+    <p class='m-0 mt-3 text-sm text-muted-foreground' id='todo-auth-msg'></p>
+  </div>
+</dialog>
+
 {/* Use inline to load icon quicker firstly */}
 <script is:inline>
   const toggleDarkModeElement = document.getElementById('toggleDarkMode')
@@ -87,11 +122,6 @@ import { Icon } from '../user'
       // Dark Mode
       const darkModeBtn = this.querySelector('#toggleDarkMode') as HTMLElement
       darkModeBtn.addEventListener('click', () => {
-        // Old way: dispatch event
-        // const toggleDarkModeEvent = new CustomEvent('theme-change', {
-        //   detail: { theme: localStorage.getItem('theme') === 'light' ? 'dark' : 'light' }
-        // })
-        // document.dispatchEvent(toggleDarkModeEvent)
         const newTheme = setTheme(undefined, true)
         darkModeBtn.dataset.theme = newTheme
         showToast({ message: `Set theme to ${newTheme}` })
@@ -101,7 +131,82 @@ import { Icon } from '../user'
       this.querySelector('#toggleMenu')?.addEventListener('click', () => {
         this.classList.toggle('expanded')
       })
+
+      const todoLink = this.querySelector('a[href="/todo"]') as HTMLAnchorElement | null
+      if (todoLink) {
+        todoLink.addEventListener('click', async (e) => {
+          e.preventDefault()
+
+          const targetUrl = todoLink.href
+          try {
+            const res = await fetch('/api/todo/status', {
+              method: 'GET',
+              headers: { accept: 'application/json' }
+            })
+            const data = await res.json().catch(() => ({}))
+            if (res.ok && data?.authed) {
+              window.location.href = targetUrl
+              return
+            }
+          } catch {}
+
+          this.classList.remove('expanded')
+          openTodoAuthDialog(targetUrl)
+        })
+      }
     }
+  }
+
+  function openTodoAuthDialog(targetUrl) {
+    const dialog = document.getElementById('todo-auth-dialog') as HTMLDialogElement | null
+    if (!dialog) return
+
+    const msg = document.getElementById('todo-auth-msg') as HTMLParagraphElement | null
+    const input = document.getElementById('todo-auth-pin') as HTMLInputElement | null
+    const form = document.getElementById('todo-auth-dialog-form') as HTMLFormElement | null
+    const cancel = document.getElementById('todo-auth-cancel') as HTMLButtonElement | null
+
+    dialog.dataset.targetUrl = targetUrl
+    if (msg) msg.textContent = ''
+
+    if (!dialog.open) dialog.showModal()
+    input?.focus()
+
+    if (dialog.dataset.bound === 'true') return
+    dialog.dataset.bound = 'true'
+
+    cancel?.addEventListener('click', () => {
+      dialog.close()
+    })
+
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close()
+    })
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      if (!msg || !input) return
+
+      const pin = input.value
+      msg.textContent = 'Checking...'
+
+      try {
+        const res = await fetch('/api/todo/login', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ pin })
+        })
+        const data = await res.json().catch(() => ({}))
+        if (res.ok && data?.ok) {
+          dialog.close()
+          window.location.href = dialog.dataset.targetUrl || '/todo'
+          return
+        }
+        msg.textContent = data?.message || 'Login failed.'
+      } catch {
+        msg.textContent = 'Network error.'
+      }
+    })
   }
 
   customElements.define('header-component', HeaderComponent)
@@ -184,6 +289,10 @@ import { Icon } from '../user'
       background-color: hsl(var(--muted) / var(--un-bg-opacity, 1));
       border-bottom-color: hsl(var(--border) / var(--un-border-opacity, 1));
     }
+  }
+
+  .todo-auth-dialog::backdrop {
+    background-color: #00000091;
   }
 
   /* dark light mode toggle */

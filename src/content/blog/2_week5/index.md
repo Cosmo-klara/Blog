@@ -1,0 +1,150 @@
+---
+title: 'week5 Record'
+publishDate: '2026-03-27'
+updatedDate: '2026-04-01'
+description: '记录每周的工作内容'
+tags:
+    - Record
+    - Weekly_work
+    - PaperReading
+language: '中文'
+---
+
+## Record
+
+### 本周工作
+
+> 模型 Qwen2.5-omni-3B，bf16
+
++ 1 fps
+
+| Model | RetainedRatio | fps | overall_accuracy |
+| :---: | :---: | :---: | :---: |
+| Full tokens | 100% | 1 | 41.8 |
+| baseline| 50% | 1 | 40.9 |
+| omnizip | 50% | 1 | 41.3 |
+| new | 45% | 1 | 34.7 |
+| testing | 50% | 1 |  |
+
+### baseline
+
+剪枝发生在 LLM 之前：先生成各模态的保留 mask，再用 `global_mask` 直接裁剪 `inputs_embeds/attention_mask/position_ids`，从而减少后续 Transformer 的序列长度。
+
+- 总体保留率：`RetainedRatio = keep_tokens / total_tokens = mean(global_mask)`
+    文本 token 默认全保留
+- 参数：
+    `rho_audio`：音频丢弃率, 0.3
+    `rho_video`：视频丢弃率, 0.6
+    `contextual_ratio`：音频上下文 anchor 比例, 0.05
+    `g`：每个 anchor 合并的 token 数, 3
+
+#### Video 压缩方法
+
+使用 ISTM（omnizip 方法，不做 audio-guided）：把视频 token 视为按帧排列的 patch 序列，对每一帧独立产生 keep mask。
+
+- 偶数帧（空间多样性）：用 DPCKNN 的密度峰思想打分，倾向保留“分布中代表性强且互相分散”的 token。
+- 奇数帧（时间冗余）：与上一帧同位置 token 做余弦相似度，保留相似度最低的 token。
+- 每帧保留比例约为 `1 - rho_video`。
+
+#### Audio 压缩方法
+
+音频采用“重要 token 保留 + 上下文 anchor + 合并”的结构（类似 omnizip，优化了一些），禁用了 omnizip 中 audio→video 相关评分的部分。
+
+- Dominant 保留：用音频编码器返回的 `attn_logits` 做 top-k，`dominant_num = round((1 - rho_audio) * N)`，直接置 `keep=True`。
+- Contextual anchors：在剩余 token 上按时间顺序分成 `contextual_num = round(contextual_ratio * N)` 个桶；每个桶内用桶内平均相似度最大，选一个代表 token 作为 anchor，并置 `keep=True`，保证时间覆盖且避免再次偏向全局 topk。
+
+    桶内平均相似度最大指的是：选出一个最能代表这一桶整体分布的 token 当 anchor，用余弦相似度衡量“代表性”。
+
+    - 设这个桶里有 $m$ 个 token，归一化后的向量是 $\tilde{x}_1,\dots,\tilde{x}_m$（单位长度）。
+    - 对桶内每个 token $i$，计算它与桶内其它 token 的平均余弦相似度：
+    $$
+    \text{rep}(i)=\frac{1}{m-1}\sum_{j\neq i}\cos(\tilde{x}_i,\tilde{x}_j)
+    $$
+    - 选择 $\text{rep}(i)$ 最大的那个 token 作为 anchor：
+    $$
+    i^*=\arg\max_i \text{rep}(i)
+    $$
+
+
+- 合并（aa-only）：每个 Contextual anchor 选 top-`g` 个与该 Contextualanchor 最相似的 token 做 merge；合并权重 `w = softmax(cos(token, anchor))`，将被合并 token 的信息注入 anchor embedding，被合并 token 本身不保留。
+
+#### 实验过的 baseline 方案
+
+- Contextual anchor 的选法
+  anchors 用变化点，用变化大的位置当 anchor，在 remaining 的序列上算相邻余弦差： $d_t = 1 - cos(a_t, a_{t-1})$, 取 contextual_num 个局部峰值或 topk 的变化点当 anchors
+
+ 该方案记为 baseline-t
+
+  | Model | RetainedRatio | fps | overall_accuracy |
+  | :---: | :---: | :---: | :---: |
+  | baseline| 50% | 1 | 40.9 |
+  | baseline-t | 50% | 1 | 40.2 |
+
+### omnizip
+
+#### Video 压缩方法
+
+Audio-guided ISTM：先按输入序列的插入模式切分视频/音频为多个 time-chunk；对齐的 chunk 使用音频保留率指导视频丢弃率。
+
+- 先计算每个音频 chunk 的保留率 `ret = mean(audio_mask_chunk)`，再将 `ret` 映射到视频丢弃率区间 `[0.35, 0.75]`，并做一次预算归一化，使整体视频丢弃 token 数接近 `rho_video * N_video`。
+- 对每个视频 chunk 再跑 ISTM（偶数帧 DPCKNN、奇数帧变化保留），但丢弃率随 chunk 动态变化。
+
+#### Audio 压缩方法
+
+- Dominant 保留同样由 `attn_logits` top-k 决定。
+- Contextual anchors：从剩余 token 中按步长均匀抽样作为 Contextual anchors
+- 合并评分/权重包含 audio→video（跨模态协同）：音频的 merge 选择与 merge 权重都引入“与视频相关性”的打分。
+  - 候选分配：先用音频-音频相似度把每个待合并音频 token 分配到最近的 Contextual anchor（即 `assign = argmax_c cos(a_token, a_anchor_c)`），保证每个 token 只归属一个 anchor。
+  - 相关性打分（audio→video）：对每个待合并音频 token 计算它与所有视频 token 的最大余弦相似度：`score_av(token) = max_j cos(a_token, v_j)`。
+    - 直觉：如果某个音频 token 在特征空间里更接近某些视频 token，它更可能携带“与视频对齐/相关”的信息（例如声音事件与画面同步），因此更值得被保留或注入到 anchor。
+  - top-g 选择：在每个 anchor 的候选集合内，用 `score_av` 从高到低选出 top-`g` 个 token 作为 merge 对象（每个 anchor 最多合并 `g` 个）。
+  - merge 权重：对被选中的 `g` 个 token，再用同样的 `score_av` 做 softmax 得到权重 `w = softmax(score_av)`，权重越大表示该 token 与视频越相关，在合并时贡献越大。
+  - 合并方式：用 `w` 对这些 token 的 embedding 加权求和形成 `merged_vec`，再与 anchor 原 embedding 做残差式融合得到更新后的 anchor；被合并的 token 本身仍会被丢弃（只留下更新后的 anchor）。
+
+### new
+
+#### Video 压缩方法
+
+两帧一组，第一帧的 token 平均池化作为参考 token 保留与其余弦相似度最低的 topk token，第二帧只做时间冗余的处理，与上一帧同位置 token 做余弦相似度，保留相似度最低的 token
+
+#### Audio 压缩方法
+
+只有 Dominant，没有上下文 anchor。
+
+#### LLM 压缩方法
+
+先进行一轮 prefill（仅前 8 层）并在每层计算 token 级相似度 $s^l_i=\cos(h^l_i, h^{l-1}_i)$。若某 token 在连续 $k$ 层满足 $s^l_i>\tau$（默认 $k=3,\ \tau=0.9$），则在低于阈值前所有层内对该 token 进行冻结（令该层输出近似为输入：$h^{l+1}_i=h^l_i$），从而得到前 8 层的层级掩码 $M^l$。在正式推理时，对 $l\le 8$ 的层按 $M^l$ 对应位置执行冻结。
+
+A→V 注意力引导的视频剪枝（18–25 统计，第 26 层执行物理裁剪：
+
+在 prefill 的第 18–25 层打开 `output_attentions`，拿到每层自注意力权重 $A^{(l)}\in\mathbb{R}^{H\times Q\times K}$
+只使用 audio token 的 query 位置集合 $Q_a$，对 video token 的 key 位置集合 $K_v$ 计算重要性。对每个 video token $k\in K_v$，
+
+$s^{(l)}(k)=\frac{1}{H\cdot |Q_a|}\sum_{h=1}^{H}\sum_{q\in Q_a}A^{(l)}_{h,q,k},\quad s(k)=\frac{1}{8}\sum_{l=18}^{25}s^{(l)}(k).$
+
+
+在第 $l$ 层，统计“所有音频 token（所有 $q\in Q_a$）在所有 head（$h=1..H$）里，一共给这个视频 token $k$ 分了多少注意力”，然后除以 $H\cdot|Q_a|$ 做平均。结果是一个标量：音频整体有多关注这个视频 token。
+
+在时间窗口内设置保留率（和外部剪枝保持一致，保留率 40%）
+
+在第 25 层结束后，进入第 26 层前，构造全局 `keep_idx`
+  - `hidden_states/inputs_embeds = hidden_states[:, keep_idx, :]`
+  - `attention_mask = attention_mask[:, keep_idx]`
+  - `position_ids = position_ids[:, :, keep_idx]`
+  - `past_key_values = past_key_values[:, keep_idx, :, :]`
+  同时重新计算 causal mask/position embeddings 后继续跑第 26 层及之后的层。
+
+
+### Testing
+
+#### Video/Audio 压缩方法
+
+同 baseline
+
+#### LLM 压缩方法
+
+先进行一轮 prefill（仅前 8 层）并在每层计算 token 级相似度 $s^l_i=\cos(h^l_i, h^{l-1}_i)$。若某 token 在连续 $k$ 层满足 $s^l_i>\tau$（默认 $k=3,\ \tau=0.9$），则在低于阈值前所有层内对该 token 进行冻结（令该层输出近似为输入：$h^{l+1}_i=h^l_i$），从而得到前 8 层的层级掩码 $M^l$。在正式推理时，对 $l\le 8$ 的层按 $M^l$ 对应位置执行冻结。
+
+
+
+

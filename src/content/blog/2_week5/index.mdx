@@ -24,7 +24,7 @@ language: '中文'
 | baseline| 50% | 1 | 40.9 |
 | omnizip | 50% | 1 | 41.3 |
 | new | 45% | 1 | 34.7 |
-| testing | 50% | 1 |  |
+| testing | 50% | 1 | 40.9 |
 
 ### baseline
 
@@ -135,7 +135,7 @@ $s^{(l)}(k)=\frac{1}{H\cdot |Q_a|}\sum_{h=1}^{H}\sum_{q\in Q_a}A^{(l)}_{h,q,k},\
   同时重新计算 causal mask/position embeddings 后继续跑第 26 层及之后的层。
 
 
-### Testing
+# Testing
 
 #### Video/Audio 压缩方法
 
@@ -145,6 +145,9 @@ $s^{(l)}(k)=\frac{1}{H\cdot |Q_a|}\sum_{h=1}^{H}\sum_{q\in Q_a}A^{(l)}_{h,q,k},\
 
 先进行一轮 prefill（仅前 8 层）并在每层计算 token 级相似度 $s^l_i=\cos(h^l_i, h^{l-1}_i)$。若某 token 在连续 $k$ 层满足 $s^l_i>\tau$（默认 $k=3,\ \tau=0.9$），则在低于阈值前所有层内对该 token 进行冻结（令该层输出近似为输入：$h^{l+1}_i=h^l_i$），从而得到前 8 层的层级掩码 $M^l$。在正式推理时，对 $l\le 8$ 的层按 $M^l$ 对应位置执行冻结。
 
+和 baseline 一样，是设置的太苛刻了，没什么变化，应该把符合的统计一下来着。
+
+### TODO
 
 
 

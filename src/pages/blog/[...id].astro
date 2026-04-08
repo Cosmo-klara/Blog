@@ -24,13 +24,7 @@ const { post, posts } = Astro.props
 const blockedPostIds = new Set(['2_week6'])
 const isBlocked = blockedPostIds.has(post.id)
 
-let Content
-let headings = []
-let remarkPluginFrontmatter = {}
-
-if (!isBlocked) {
-  ;({ Content, headings, remarkPluginFrontmatter } = await render(post))
-}
+const { Content, headings, remarkPluginFrontmatter } = await render(post)
 ---
 
 <PostLayout {post} {posts} {headings} {remarkPluginFrontmatter}>

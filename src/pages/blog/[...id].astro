@@ -32,7 +32,7 @@ const { Content, headings, remarkPluginFrontmatter } = await render(post)
     isBlocked ? (
       <div class='px-4 py-10 text-center sm:px-6 lg:px-8'>
         <h1 class='block text-3xl font-medium'>渲染出错</h1>
-        <p class='mt-3 text-muted-foreground'>该文章暂时无法查看。</p>
+        <p class='mt-3 text-muted-foreground'>src/pages/blog/[...id].astro:44:8 - error ts(2604): Component 'Content' is not a valid component.If this is a Svelte or Vue component, it might have a syntax error that makes it impossible to parse.</p>
       </div>
     ) : (
       <Content />

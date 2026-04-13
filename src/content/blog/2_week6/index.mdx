@@ -1,7 +1,7 @@
 ---
-title: 'week6 Record'
+title: 'week6 Record + week7(part)'
 publishDate: '2026-04-02'
-updatedDate: '2026-04-09'
+updatedDate: '2026-04-13'
 description: '记录每周的工作内容'
 tags:
     - Record
@@ -13,17 +13,19 @@ language: '中文'
 
 ### 本周工作
 
-> 模型 Qwen2.5-omni-3B，bf16, 1 fps
+> 模型 Qwen2.5-omni-3B，bf16, 1 fps，单个视频 token 数约为音频的 3 倍 ('VIDEO', 144),('AUDIO', 50), 但是遵循 omnizip 中在 WorldSense 数据集上测试的配置参数，设置最大帧数为 128 帧, 因此对于总数据集来说，视频 token 总数约为音频的 2 倍
 
 | Model | RetainedRatio(RR) | V-RR | A-RR | fps | overall_accuracy | V-Method | A-Method |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | Full tokens | 100% | 100% | 100% | 1 | 41.8 | - | - |
-| DyCoke(V&A) | 50% | 50% | 50% | 1 | 39.7 | TTM | TTM |
+| DyCoke(V&A) | 50% | 50% | 50% | 1 | 39.6 | TTM | TTM |
+| DyCoke(V&A) | 50% | 40% | 70% | 1 | 39.7 | TTM | TTM |
 | Version 1 | 50% | 40% | 70% | 1 | 40.2 | DPCKNN | TTM |
 | Version 2 | 50% | 40% | 70% | 1 | 39.6 | TTM | Dominant |
 | Version 3 | 50% | 40% | 70% | 1 | 40.5 | TTM | Dominant+Anchor1 |
 | Version 4 | 50% | 40% | 70% | 1 | 40.9 | DPCKNN | Dominant+Anchor1 |
 | Version 5 | 50% | 40% | 70% | 1 | 40.3 | DPCKNN | Dominant+Anchor2 |
+| Version 6 | 50% | 40% | 70% | 1 | ---- | TTM | Dominant+Anchor2 |
 | omnizip | 50% | 40% | 70% | 1 | 41.3 | omnizip | omnizip |
 
 ### 子数据集
@@ -36,7 +38,7 @@ language: '中文'
 
 目前一组测试的时间在 50min~60min 之间
 
-### baseline
+### baseline（DyCoke）
 
 DyCoke，但是只使用其 TTM 模块，同时用在 V/A 上
 
@@ -103,7 +105,7 @@ score = delta * rho
 selected = topk(score, num_keep).indices
 ```
 
-这样就行了，rho 大说明代表性强，delta 大：说明它离更密的中心远
+rho 大说明代表性强，delta 大：说明它离更密的中心远
 
 | Model | RetainedRatio | fps | overall_accuracy |
 | :---: | :---: | :---: | :---: |
@@ -175,9 +177,26 @@ Version 4, 但是音频非关键锚点选择变化大的作为 anchor
 
 ### Version 6
 
+Version 5，但是视觉和 baseline(DyCoke) 一样
+
 | Model | RetainedRatio | fps | overall_accuracy |
 | :---: | :---: | :---: | :---: |
 | Version 6 | 50% | 1 |  |
+
+
+### Flops 统计
+
+2026-04-10 16:52:32,418 - INFO - Prefill dvOkwKAs.mp4: tflops=44.279911081268, tflops_per_s=5.084250306195264, time_ms=8709.23
+2026-04-10 16:52:43,007 - INFO - Generate dvOkwKAs.mp4: tflops=44.292256054998, tflops_per_s=4.182740906901576, time_ms=10589.29
+2026-04-10 16:52:43,008 - INFO - Decode dvOkwKAs.mp4: tflops=0.01234497373, tflops_per_s=0.006566270138528775, time_ms=1880.058765411377
+
+所以后面统计只看 prefill
+
+| Model | RetainedRatio(RR) | FLOPs(T) | V-RR | A-RR | FLOPs(T) | overall_accuracy | V-Method | A-Method |
+| Full tokens | 100% | 85.7 | 100% | 100% | 41.8 | - | - |
+| Version 4 | 50% | 61.1 | 40% | 70% | 40.9 | DPCKNN | Dominant+Anchor1 |
+| omnizip | 50% | 40% | 60.1 | 70% | 41.3 | omnizip | omnizip |
+
 
 ### TODO
 

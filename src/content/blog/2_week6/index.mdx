@@ -183,6 +183,14 @@ Version 5，但是视觉和 baseline(DyCoke) 一样
 | :---: | :---: | :---: | :---: |
 | Version 6 | 50% | 1 |  |
 
+### with LLM
+
+> 基于 Version 4；1000，fps 0.5， ?
+
+| Model | RetainedRatio(RR) | V-RR | A-RR | LLM | fps | overall_accuracy | V-Method | A-Method |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| with LLM | 47% | 60% | 80% | 70% | 1 | 43.1 | - | - |
+
 
 ### Flops 统计
 
@@ -195,8 +203,10 @@ Version 5，但是视觉和 baseline(DyCoke) 一样
 | Model | RetainedRatio(RR) | FLOPs(T) | V-RR | A-RR | FLOPs(T) | overall_accuracy | V-Method | A-Method |
 | Full tokens | 100% | 85.7 | 100% | 100% | 41.8 | - | - |
 | Version 4 | 50% | 61.1 | 40% | 70% | 40.9 | DPCKNN | Dominant+Anchor1 |
-| omnizip | 50% | 40% | 60.1 | 70% | 41.3 | omnizip | omnizip |
-
+| omnizip | 50% | 61.4 | 40% | 70% | 41.3 | omnizip | omnizip |
 
 ### TODO
+
+with LLM； fps 1 下实验，debug
+
 

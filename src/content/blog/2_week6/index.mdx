@@ -188,19 +188,22 @@ Version 5，但是视觉和 baseline(DyCoke) 一样
 > 基于 Version 4；1000，fps 0.5， ?
 
 | Model | RetainedRatio(RR) | V-RR | A-RR | LLM | fps | overall_accuracy | V-Method | A-Method |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | with LLM | 47% | 60% | 80% | 70% | 1 | 43.1 | - | - |
 
 
 ### Flops 统计
 
+```
 2026-04-10 16:52:32,418 - INFO - Prefill dvOkwKAs.mp4: tflops=44.279911081268, tflops_per_s=5.084250306195264, time_ms=8709.23
 2026-04-10 16:52:43,007 - INFO - Generate dvOkwKAs.mp4: tflops=44.292256054998, tflops_per_s=4.182740906901576, time_ms=10589.29
 2026-04-10 16:52:43,008 - INFO - Decode dvOkwKAs.mp4: tflops=0.01234497373, tflops_per_s=0.006566270138528775, time_ms=1880.058765411377
+```
 
 所以后面统计只看 prefill
 
 | Model | RetainedRatio(RR) | FLOPs(T) | V-RR | A-RR | FLOPs(T) | overall_accuracy | V-Method | A-Method |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | Full tokens | 100% | 85.7 | 100% | 100% | 41.8 | - | - |
 | Version 4 | 50% | 61.1 | 40% | 70% | 40.9 | DPCKNN | Dominant+Anchor1 |
 | omnizip | 50% | 61.4 | 40% | 70% | 41.3 | omnizip | omnizip |

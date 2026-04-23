@@ -1,0 +1,100 @@
+---
+title: 'week7(part) Record + week8'
+publishDate: '2026-04-15'
+updatedDate: '2026-04-23'
+description: '记录每周的工作内容'
+tags:
+    - Record
+    - Weekly_work
+language: '中文'
+---
+
+
+## Record
+
+### 本周工作
+
+### Flops 统计
+
+和 omnizip 作者邮件联系了，他们说是只把 audio/video token 作为 Query（Q） 时产生的计算量记进 FLOPs, 也不考虑前面音频编码器和视觉编码器的 FLOPs；所以在 token 减半的时候对应 FLOPs 也会减半(自注意力平方项还会少更多)。
+
+我这个的话是整个 prefill 阶段的，就多一点，作为评判指标感觉没问题。想着后面可能会进入多模态编码器之前有一些剪枝之类的就保留整个 prefill 做统计
+
+> The FLOPs calculation considers the multimodal token originating from audio and video inputs
+
+
+> 500 个样本的统计
+
+| Model | FLOPs(T) | overall_accuracy |
+| :---: | :---: | :---: |
+| Full tokens | 85.7 | | 41.8 |
+| Version 4 | 61.1 | 40.9 |
+| omnizip | 61.4 | 41.3 |
+| with LLM | 59.82 | 41.42 |
+
+> 完整数据集
+
+剪枝后统计一组 flops 跑一个要 6~7h，full token 9h 左右
+
+不带 flops 统计剪枝后 2h 左右
+
+| Model | FLOPs(T) | overall_accuracy |
+| :---: | :---: | :---: |
+| Full tokens | 100.77  | 41.8 |
+| Version 4 | 71.84  | 40.9 |
+| omnizip | 72.20 | 41.3 |
+| with LLM | 70.34 | 41.42 |
+
+可以看到 with LLM 的方法在 FLOPs 上是最低的，且在 overall_accuracy 上是最高的。（不过需要多跑跑实验看看是不是只是超参数的问题）
+
+
+### llm 给定不同的压缩率
+
+> llm 17 层进行剪枝
+
+前置视觉保留率 60% ，音频保留率 80%，进入 llm 前总体保留率为 67%
+
+| llm 保留率 | overall_accuracy |
+|:---:|:---:|
+| 70% | 41.27 |
+| 50% | 41.42 |
+| 30% | 41.3 |
+
+
+### 在 llm 不同层进行剪枝的消融实验
+
+根据之前实验的图；
+
+|attention|Video_cosine|Audio_cosine|
+|-|-|-|
+|![](assets/modality_attention_distribution_average_7.png)|![](assets/video_token_cosine_adjacent_below_thresholds_hzbpQzOo.png)|![](assets/audio_token_cosine_adjacent_below_thresholds_hzbpQzOo.png)|
+
+第一张是对于音视频全部 token 的注意力在不同层的占比，第二张和第三张分别是视频/音频 token 逐层余弦相似度的可视化，纵轴越高说明上一层到当前层 token 变化越大
+
+由此我们知道在 17-24 层音频视频 token 获得较高注意力的同时，变化较小，感觉可以看作重要的 token 已经选出来了? 补了一个 text token 的那个余弦相似度变化的图，和视频/音频 token 的变化趋势几乎一致。
+
+两个示例：
+
+![](assets/text_token_cosine_adjacent_below_thresholds_GeKVDdqj.png)
+
+![](assets/text_token_cosine_adjacent_below_thresholds_sWrqyBmV.png)
+
+
+| layers | overall_accuracy |
+| :---: | :---: |
+| 9 | 39.75 |
+| 17 | 41.42 |
+| 19 | 41.36 |
+
+
+
+
+### 新的方法的尝试
+
+
+
+
+
+### 现有方法的图示解释
+
+

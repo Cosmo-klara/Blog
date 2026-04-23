@@ -27,7 +27,7 @@ language: '中文'
 
 | Model | FLOPs(T) | overall_accuracy |
 | :---: | :---: | :---: |
-| Full tokens | 85.7 | | 41.8 |
+| Full tokens | 85.7 | 41.8 |
 | Version 4 | 61.1 | 40.9 |
 | omnizip | 61.4 | 41.3 |
 | with LLM | 59.82 | 41.42 |
@@ -67,7 +67,7 @@ language: '中文'
 
 |attention|Video_cosine|Audio_cosine|
 |-|-|-|
-|![](assets/modality_attention_distribution_average_7.png)|![](assets/video_token_cosine_adjacent_below_thresholds_hzbpQzOo.png)|![](assets/audio_token_cosine_adjacent_below_thresholds_hzbpQzOo.png)|
+|![](assets/modality_attention_distribution_ZLPwsBNd.png)|![](assets/video_token_cosine_adjacent_below_thresholds_hzbpQzOo.png)|![](assets/audio_token_cosine_adjacent_below_thresholds_hzbpQzOo.png)|
 
 第一张是对于音视频全部 token 的注意力在不同层的占比，第二张和第三张分别是视频/音频 token 逐层余弦相似度的可视化，纵轴越高说明上一层到当前层 token 变化越大
 
@@ -79,6 +79,10 @@ language: '中文'
 
 ![](assets/text_token_cosine_adjacent_below_thresholds_sWrqyBmV.png)
 
+之前的图有点问题，注意力在不同层的占比的那个，之前在实验室的卡上用的 0.5fps 统计的，换成 1fps 后重新绘制了
+
+顺便统计了文本 token 的注意力在不同层的占比，有个现象在 3-9 层文本、音频、视频 token 三者注意力离 1 也很远，也就是这里注意力主要落在 special token 上了
+
 
 | layers | overall_accuracy |
 | :---: | :---: |
@@ -87,14 +91,39 @@ language: '中文'
 | 19 | 41.36 |
 
 
-
-
 ### 新的方法的尝试
 
+在进入 llm 前的视频侧，之前是 keep_ratio 固定的，现在改成 chunk 内总的 keep_ratio 固定, 对于单帧的预算分配按照信息量自适应分配
 
+> 这个自适应分配如果有效果，下个实验可以联合音频来做
 
+对每帧计算信息量分数
 
+- 空间复杂度 `spatial_t`：帧内 token 离散程度（画面丰富度）
+    - `mu = mean(tok)`
+    - `spatial = mean( ||tok - mu||^2 )`
+
+- 时间变化复杂度 `temporal_t`：与上一帧的平均变化（运动/事件变化）
+    - `sim = (normalize(curr) * normalize(prev)).sum(dim=1)`（逐 token 对齐的余弦相似度）
+    - `temporal = mean(1 - sim)`
+    - 没有上一帧则 `temporal_t` = 0
+
+- 信息量分数 `score_t = lambda * spatial_t + (1 - lambda) * temporal_t`
+
+lambda 越大越偏向帧内复杂度，越小越偏向帧间变化
+
+归一化分数后作为权重分配预算即可
+
+效果：
+
+| Model | overall_accuracy |
+| :---: | :---: |
+| omnizip | 41.3 |
+| with LLM | 41.42 |
+| Version 7 | |
 
 ### 现有方法的图示解释
+
+
 
 

@@ -21,7 +21,7 @@ type Props = {
 
 const { post, posts } = Astro.props
 
-const blockedPostIds = new Set(['2_week7'])
+const blockedPostIds = new Set(['2_week8'])
 const isBlocked = blockedPostIds.has(post.id)
 
 const { Content, headings, remarkPluginFrontmatter } = await render(post)

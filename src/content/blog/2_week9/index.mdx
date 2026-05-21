@@ -1,7 +1,7 @@
 ---
 title: 'week10'
 publishDate: '2026-05-18'
-updatedDate: '2026-05-20'
+updatedDate: '2026-05-21'
 description: '记录每周的工作内容'
 tags:
     - Record
@@ -112,11 +112,103 @@ $$
 - 在进入 llm 之前交叉注意力？
 
 
+### 补充
+
+![](assets/2.png)
+
+![](assets/3.png)
+
+| layers | FLOPs(T) | overall_accuracy |
+| :---: | :---: | :---: |
+| 0 | 62.37 | 39.19 |
+| 9 | 66.85 | 39.75 |
+| 16 | 70.34 | 41.42 |
+| 18 | 71.33 | 41.36 |
 
 
++ 稳定度
+
+    对每一层 $(\ell,\ell+1)$，分别在视频 token 与音频 token 上计算相邻层 hidden state 的平均余弦相似度：
+
+    $$
+    \cos^{(v)}_\ell = \mathbb{E}_{t\in\mathcal{T}_v}\Big[\cos(\mathbf{h}^{(v)}_{\ell,t},\mathbf{h}^{(v)}_{\ell+1,t})\Big],\quad
+    \cos^{(a)}_\ell = \mathbb{E}_{t\in\mathcal{T}_a}\Big[\cos(\mathbf{h}^{(a)}_{\ell,t},\mathbf{h}^{(a)}_{\ell+1,t})\Big],
+    $$
+    其中 $\mathcal{T}_v,\mathcal{T}_a$ 分别为当前样本中的视频/音频 token 索引集合。定义融合变化强度：
+    $$
+    C_\ell = 1 - \frac{1}{2}\big(\cos^{(v)}_\ell+\cos^{(a)}_\ell\big),\qquad \ell=0,\dots,L-2.
+    $$
+
+    设置窗口大小为 $w$，对每层定义局部变化均值：
+    $$
+    \overline{C}_\ell = \frac{1}{|\Omega_\ell|}\sum_{k\in\Omega_\ell} C_k,\quad
+    \Omega_\ell=\{\ell,\ell+1,\dots,\min(\ell+w-1,L-2)\}.
+    $$
+    那稳定度就是:
+    $$
+    \mathrm{Stab}_\ell = 1-\overline{C}_\ell.
+    $$
+    对 $\mathrm{Stab}_\ell$ 做 min-max 归一化得到 $\widehat{\mathrm{Stab}}_\ell\in[0,1]$。
+
++ 注意力强度
+
+    第 $\ell$ 层注意力权重：统计音频/视频 token 作为 Key 被分配的注意力质量，并按 token 数归一化，将两者相加并做 min-max 归一化得到：
+    $$
+    \widehat{\mathrm{Attn}}_\ell = \mathrm{Norm}\big(A^{(v)}_\ell + A^{(a)}_\ell\big).
+    $$
 
 
+给定权重系数 $\alpha,\beta$，基础分数定义为：
+
+> $\alpha,\beta$ 都是 1，没调整过
+
+$$
+B_\ell=\alpha\cdot \widehat{\mathrm{Attn}}_\ell+\beta\cdot \widehat{\mathrm{Stab}}_\ell.
+$$
+
++ 其他
+
+    设阈值为 $thr$，$thr$ 取 $\{C_\ell\}$ 的分位数（$p$ 取的 0.75）
+
+    $$
+    thr = \mathrm{Quantile}\big(\{C_\ell\}, p\big).
+    $$
+
+    变化起点为第一个满足 $C_\ell\ge thr$ 的层：
+
+    $$
+    \ell_0 = \min\{\ell\mid C_\ell \ge thr\}.
+    $$
 
 
+    抑制信息融合之前层的得分，并鼓励在融合后的稳定区域选层，引入分段权重
+
+    > 线性的，r 是步长（想要表示变化区间长度），这里实现还不是很完善，我这里是固定的一个步长大小，如果检测到稳定区间开始来设置动态步长应该更好点；或者最大值不给到 1，而是给到 0.5 这种，确保变化的时候不容易被选中
 
 
+    $$
+    w_\ell=
+    \begin{cases}
+    w_{\text{pre}}, & \ell<\ell_0,\\
+    w_{\text{pre}}+(1-w_{\text{pre}})\cdot \min\Big(1,\frac{\ell-\ell_0+1}{r}\Big), & \ell\ge \ell_0,
+    \end{cases}
+    $$
+
+    考虑到融合后越早剪枝越省 FLOPs，在开始融合后引入指数衰减的早期加成，倾向于选中更早的层：
+
+    $$
+    e_\ell=
+    \begin{cases}
+    1, & \ell<\ell_0,\\
+    \exp\big(-\gamma(\ell-\ell_0)\big), & \ell\ge \ell_0,
+    \end{cases}
+    $$
+
+最终分数为：
+$$
+S_\ell = B_\ell\cdot w_\ell\cdot e_\ell,\qquad \ell=0,\dots,L-2.
+$$
+选择得分最高的层作为内部剪枝层：
+$$
+\ell^\ = \arg\max_\ell S_\ell.
+$$

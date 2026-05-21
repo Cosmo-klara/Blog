@@ -1,0 +1,77 @@
+---
+title: 'week9'
+publishDate: '2026-05-18'
+updatedDate: '2026-05-20'
+description: '记录每周的工作内容'
+tags:
+    - Record
+    - Weekly_work
+language: '中文'
+---
+
+## Record
+
+### 本周工作
+
+### 确定 llm 内部剪枝层：通用方法
+
+用少量样本统计相邻层音视频 token hidden state 的平均余弦相似度，将 $1-\cos$ 作为变化强度 $C_\ell$。通过阈值找到第一个波动区间，并在其后寻找 $C_\ell$ 连续多层维持低值的平静区间 $\mathcal{P}$。在平静区间内，选择音视频 token 作为 Key 接收注意力达到一定阈值的最早层作为 LLM 内部剪枝层。
+
+#### 变化强度
+
+对第 $\ell$ 层到 $\ell+1$ 层，相邻层变化强度定义为
+
+$$
+C_\ell
+= 1 - \frac{1}{N}\sum_{i=1}^{N}\frac{1}{|Tok_{AV}|}\sum_{t\in Tok_{AV}}
+\cos\!\big(h^{(i)}_{\ell,t},\, h^{(i)}_{\ell+1,t}\big)
+$$
+
+- $Tok_{AV}$ 表示音频+视频 token 的集合
+- $C_\ell$ 越大，说明这一层变化更剧烈。图里“余弦更低/低于阈值更多”的层就对应 $C_\ell$ 的峰。
+
+用 $C_\ell$ 配合阈值来确定寻找发生显著变化的层，定义为波动区间
+
+平静区间：波动区间之后，$C_\ell$ 连续 $K$ (=3)层都低于一个稳定阈值 $\tau$：
+
+$
+\ell \in \mathcal{P}
+\iff
+\ell > \ell_{peak}
+\ \land\
+\max_{0\le j \le K-1} C_{\ell+j} \le \tau
+$
+
+
+#### 音视频 token 收到的注意力较高
+
+音视频 token 作为 K 被看得多
+
+$$
+A_\ell
+=\frac{1}{N}\sum_{i=1}^{N}\frac{1}{|Q|}\sum_{q\in Q}\sum_{k\in Tok_{AV}} \bar a^{(i)}_{\ell}(q,k)
+$$
+
+- $Q$ 是所有 query token
+- $\bar a$ 是对 head 平均后的 attention。
+
+#### 最终选层
+
+先得到平静区间 $\mathcal{P}$，选平静区间内最早满足注意力阈值的最早层
+
+$$
+\ell^* = \min\left\{\ell\in \mathcal{P} \mid A_\ell \ge \operatorname{Quantile}_{0.7}\left(\{A_j\}\right)\right\}
+$$
+
+
+
+
+
+
+
+
+
+
+
+
+

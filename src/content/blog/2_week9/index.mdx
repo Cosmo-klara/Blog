@@ -74,7 +74,42 @@ $$
 $$
 
 
+### 在其他多模态模型上
 
+在其他多模态模型上试验自适应的选层方法，目前找了两个模型；测试了其完整模型的 worldsense 上的准确率
+
+[Ming-Omni](https://arxiv.org/abs/2506.09344v1)
+
+![](assets/x1.png)
+
+| Model | Worldsense |
+| :---: | :---: |
+| Qwen2.5-omni7B(Omnizip) | 46.80 |
+| Ming-Omni | 未报告 |
+| 复现 | 46.44 |
+
+[OmniVinci](https://arxiv.org/abs/2510.15870v2)
+
+![](assets/x2.png)
+
+9B
+
+| Model | Worldsense |
+| :---: | :---: |
+| Qwen2.5-omni7B(Omnizip) | 46.80 |
+| Qwen2.5-Omni7B(OmniVinci) | 45.40 |
+| OmniVinci | 48.23 |
+| 复现 | 47.56 |
+
+复现是用的 OmniVinci 模型然后套用的 Omnizip 在 worldsense 上的评估的代码
+
+这个还没提 issue 问，打算要一下评估代码
+
+### 后续计划
+
+- 在这些模型上做类似分析（注意力，token 变化）
+
+- 在进入 llm 之前交叉注意力？
 
 
 

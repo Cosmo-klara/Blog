@@ -212,3 +212,116 @@ $$
 $$
 \ell^\ = \arg\max_\ell S_\ell.
 $$
+
+
+
+
+<!-- Overall Accuracy: 0.4600 (1459/3172) -->
+CUDA_VISIBLE_DEVICES=1,7 nohup python omnizip_eval.py --WAPPER-METHOD full > full_model.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4537 (1439/3172) -->
+CUDA_VISIBLE_DEVICES=2,3 nohup python omnizip_eval.py --WAPPER-METHOD omnizip --OMNIZIP_RHO_AUDIO 0.3 --OMNIZIP_RHO_VIDEO 0.6 --OMNIZIP_G 3 --OMNIZIP_CONTEXTUAL_RATIO 0.05 > omnizip.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4319 (1370/3172) -->
+CUDA_VISIBLE_DEVICES=4,5 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 0 > ours0.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4366 (1385/3172) -->
+CUDA_VISIBLE_DEVICES=0 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 1 > ours1.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4376 (1388/3172) -->
+CUDA_VISIBLE_DEVICES=1 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 2 > ours2.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4385 (1391/3172) -->
+CUDA_VISIBLE_DEVICES=1 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 3 > ours3.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4395 (1394/3172) -->
+CUDA_VISIBLE_DEVICES=6,7 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 4 > ours4.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4379 (1389/3172) -->
+CUDA_VISIBLE_DEVICES=2 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 5 > ours5.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4474 (1419/3172) -->
+CUDA_VISIBLE_DEVICES=2 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 6 > ours6.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4366 (1385/3172) -->
+CUDA_VISIBLE_DEVICES=3 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 7 > ours7.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4451 (1412/3172) -->
+CUDA_VISIBLE_DEVICES=2,3 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 8 > ours8.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4388 (1392/3172) -->
+CUDA_VISIBLE_DEVICES=4 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 9 > ours9.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4499 (1427/3172) -->
+CUDA_VISIBLE_DEVICES=3 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 10 > ours10.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4467 (1417/3172) -->
+CUDA_VISIBLE_DEVICES=5 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 11 > ours11.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4492 (1425/3172) -->
+CUDA_VISIBLE_DEVICES=4,5 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 12 > ours12.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4521 (1434/3172) -->
+CUDA_VISIBLE_DEVICES=6 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 13 > ours13.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4543 (1441/3172) -->
+CUDA_VISIBLE_DEVICES=4 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 14 > ours14.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4555 (1445/3172) -->
+CUDA_VISIBLE_DEVICES=7 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 15 > ours15.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4552 (1444/3172) -->
+CUDA_VISIBLE_DEVICES=2 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 16 > ours16.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4533 (1438/3172) -->
+CUDA_VISIBLE_DEVICES=0 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 17 > ours17.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4546 (1442/3172) -->
+CUDA_VISIBLE_DEVICES=5 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 18 > ours18.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4565 (1448/3172) -->
+CUDA_VISIBLE_DEVICES=1 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 19 > ours19.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4587 (1455/3172) -->
+CUDA_VISIBLE_DEVICES=3 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 20 > ours20.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4565 (1448/3172) -->
+CUDA_VISIBLE_DEVICES=2 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 21 > ours21.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4565 (1448/3172) -->
+CUDA_VISIBLE_DEVICES=6 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 22 > ours22.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4600 (1459/3172) -->
+CUDA_VISIBLE_DEVICES=3 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 23 > ours23.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4518 (1433/3172) -->
+CUDA_VISIBLE_DEVICES=4 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 24 > ours24.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4571 (1450/3172) -->
+CUDA_VISIBLE_DEVICES=4 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 25 > ours25.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4606 (1461/3172) -->
+CUDA_VISIBLE_DEVICES=7 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 26 > ours26.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4568 (1449/3172) -->
+CUDA_VISIBLE_DEVICES=5 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 27 > ours27.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4590 (1456/3172) -->
+CUDA_VISIBLE_DEVICES=5 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 28 > ours28.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4574 (1451/3172) -->
+CUDA_VISIBLE_DEVICES=6 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 29 > ours29.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4590 (1456/3172) -->
+CUDA_VISIBLE_DEVICES=0 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 30 > ours30.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4584 (1454/3172) -->
+CUDA_VISIBLE_DEVICES=7 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 31 > ours31.log 2>&1 &
+
+<!-- Overall Accuracy: 0.4565 (1448/3172) -->
+CUDA_VISIBLE_DEVICES=6 nohup python eval-llm.py --WAPPER-METHOD omnizip --LLM_KEEP_RATIO 0.5 --LLM_PRUNE_LAYER 32 > ours32.log 2>&1 &
+
+
+
+
+

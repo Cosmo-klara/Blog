@@ -43,6 +43,12 @@ $K^* = \arg\min_K \{KL(P_{standard}||P_{VTW}^{(K)}) < \eta\}$
 
 尝试了性能下降明显，
 
+| 模型 | 总体准确率 |
+| :---: | :---: |
+| 完整模型 | 46.00 |
+| Me-1 |  29.28 |
+| Me-2 | 39.77 |
+
 + [Fit and Prune: Fast and Training-free Visual Token Pruning for Multi-modal Large Language Models](https://arxiv.org/abs/2409.10197)
 
 LLaVA 中交叉注意力图和自注意力图的可视化，展示了不同层如何关注不同的视觉区域。注意力模式揭示了哪些视觉标记对模型的理解最重要

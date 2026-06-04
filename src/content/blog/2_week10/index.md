@@ -48,6 +48,7 @@ $K^* = \arg\min_K \{KL(P_{standard}||P_{VTW}^{(K)}) < \eta\}$
 | 完整模型 | 46.00 |
 | Me-1 |  29.28 |
 | Me-2 | 39.77 |
+| Me-3 | 44.60 |
 
 + [Fit and Prune: Fast and Training-free Visual Token Pruning for Multi-modal Large Language Models](https://arxiv.org/abs/2409.10197)
 

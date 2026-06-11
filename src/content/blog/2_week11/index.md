@@ -15,9 +15,9 @@ language: '中文'
 
 + 可视化注意力和变化
 
+![](assets/ATTN.png)
 
-
-
+![](assets/COS.png)
 
 + MME 数据集上各层剪枝分数
 
@@ -26,3 +26,9 @@ language: '中文'
 + 散点图
 
 ![](assets/2.png)
+
+### llava1.5
+
+
+
+

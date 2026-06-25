@@ -81,7 +81,9 @@ export const theme: ThemeUserConfig = {
       }
     ],
     credits: true,
-    social: { github: 'https://github.com/Cosmo-klara/Blog'}
+    social: [
+      { icon: 'github', label: 'GitHub', href: 'https://github.com/Cosmo-klara/Blog' }
+    ]
   },
 
   // [Content]

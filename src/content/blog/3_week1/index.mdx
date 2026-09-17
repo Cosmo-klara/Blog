@@ -1,8 +1,8 @@
 ---
-title: 'week1 Record'
+title: 'week1 Record 论文搜集'
 publishDate: '2026-09-16'
 updatedDate: '2026-09-16'
-description: '记录每周的工作内容'
+description: '论文搜集'
 tags:
     - Record
     - Weekly_work
@@ -14,13 +14,6 @@ language: '中文'
 
 ### 本周工作
 
-- [x] 初步检索多模态剪枝方向论文，重点关注视觉语言模型中的 visual token pruning 与 omnimodal 模型中的音视频 token compression
-- [x] 按照 training-free、query-aware、encoder-side compression、LLM 中间层 pruning 等角度整理方法脉络
-- [x] 记录几篇和当前研究更相关的近期工作，便于后续和自己的分层剪枝思路做对照
-- [ ] 继续补充与 Qwen2.5-Omni / 视频音频联合理解更接近的工作，并整理可直接复现实验的论文
-- [ ] 对不同方法的保留预算、打分依据和跨模态协同方式做更细的表格化比较
-
-### 一些论文
 
 + [Fit and Prune: Fast and Training-free Visual Token Pruning for Multi-modal Large Language Models](https://arxiv.org/abs/2409.10197)
 
@@ -42,10 +35,3 @@ language: '中文'
 
     Omni-Prune 更进一步，把 query-aware 和跨模态联合建模结合起来，同时对音频和视频 token 进行统一剪枝。它通过音频显著性划分时间窗口，再结合文本查询相关性与跨模态耦合关系来打分，并尽量成对保留有关联的音视频 token。这个工作值得重点看，因为它强调“用户问题决定什么信息重要”，对后续设计任务相关的动态剪枝策略很有借鉴意义。
 
-### 正在做的
-
-把论文整理结果进一步和当前自己的实验观察对应起来，重点看三个问题：
-
-1. 是否可以像 FitPrune 那样，用尽量少的统计量来近似评估剪枝后对后续层分布的影响。
-2. 在音视频联合输入时，是否应该采用不对称剪枝策略，例如视频偏向时空冗余压缩，音频偏向跨模态引导选择。
-3. 是否能把 query-aware 的思想引入现有流程，让不同问题下保留的 token 子集发生动态变化，而不是固定一套剪枝率。

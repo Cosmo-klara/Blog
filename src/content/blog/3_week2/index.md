@@ -1,7 +1,7 @@
 ---
-title: 'week1 Record '
-publishDate: '2026-09-15'
-updatedDate: '2026-09-17'
+title: 'week2 Record '
+publishDate: '2026-09-18'
+updatedDate: '2026-09-22'
 description: ''
 tags:
     - Record

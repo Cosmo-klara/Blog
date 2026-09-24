@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICASSP 2027 Draft</title>
+  <style>
+    body {
+      font-family: "Times New Roman", serif;
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 24px 48px;
+      line-height: 1.45;
+      color: #111;
+    }
+    h1, h2, h3, h4 {
+      margin-top: 1.1em;
+      margin-bottom: 0.45em;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      line-height: 1.25;
+      margin-top: 0.5em;
+    }
+    .author {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #444;
+    }
+    .abstract {
+      border: 1px solid #444;
+      padding: 12px 16px;
+      background: #fafafa;
+    }
+    .figure-box {
+      border: 1.5px solid #333;
+      padding: 18px;
+      margin: 18px 0 8px;
+      text-align: center;
+      background: #fcfcfc;
+    }
+    .caption {
+      font-size: 14px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .equation {
+      text-align: center;
+      font-style: italic;
+      margin: 12px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 20px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    th {
+      background: #f3f3f3;
+    }
+    ul {
+      margin-top: 0.5em;
+    }
+    @page {
+      size: A4;
+      margin: 18mm 15mm 18mm 15mm;
+    }
+  </style>
+</head>
+<body>
+  <h1>Where to Prune Multimodal LLMs: Stability- and Attention-Guided Layer Selection for Efficient Inference</h1>
+  <div class="author">Draft for ICASSP 2027 Submission</div>
+
+  <div class="abstract">
+    <strong>Abstract.</strong> Multimodal large language models (MLLMs) incur high inference cost due to long sequences of visual and audio tokens. Existing acceleration methods mainly study how many tokens to remove, while the question of where to perform internal pruning inside the language model remains underexplored. In this work, we propose a stability- and attention-guided layer selection strategy for efficient MLLM inference. Our method first analyzes a small calibration set to estimate layer-wise token stability from adjacent-layer hidden-state similarity and token importance from the attention mass received by multimodal tokens. It then selects a backbone-specific internal pruning layer where multimodal representations become relatively stable while still receiving substantial attention, and performs token pruning at that layer. We integrate this strategy with multimodal token compression for Qwen2.5-Omni and with internal token pruning for LLaVA-1.5, enabling evaluation across heterogeneous MLLM backbones. Experiments show that the proposed method consistently improves the accuracy-efficiency trade-off over fixed-layer and random-layer baselines, while remaining competitive with strong token compression baselines under reduced TFLOPs and token budgets. These results suggest that identifying a proper pruning stage is a key factor for efficient multimodal inference.
+  </div>
+
+  <h2>1. Introduction</h2>
+  <p>
+    Multimodal large language models (MLLMs) have recently achieved strong performance on vision-language and audio-visual-language tasks by feeding large numbers of visual and acoustic tokens into a large language model. However, this design leads to substantial inference cost. For modern MLLMs, the prefill stage is often dominated by long multimodal sequences, making self-attention and subsequent transformer computation increasingly expensive. As a result, improving the accuracy-efficiency trade-off of MLLMs has become an important problem for practical deployment.
+  </p>
+  <p>
+    Recent work has explored token merging, token withdrawal, and modality-specific compression for efficient multimodal inference. While these approaches mainly focus on how many tokens should be removed, a complementary question remains underexplored: where should internal pruning be performed inside the language model? In practice, pruning too early may remove information before multimodal interactions become sufficiently informative, whereas pruning too late offers limited computational benefit.
+  </p>
+  <p>
+    In this work, we study internal pruning layer selection for efficient multimodal inference. Our key observation is that an effective pruning layer should satisfy two properties simultaneously: (1) multimodal token representations become relatively stable, indicating that major transformation has already occurred; and (2) multimodal tokens still receive substantial attention, suggesting that they remain relevant to downstream reasoning. Based on this intuition, we propose a calibration-based layer selection strategy that combines adjacent-layer representation stability with layer-wise attention mass over multimodal tokens.
+  </p>
+  <p>
+    We validate the method on two heterogeneous MLLM backbones. For Qwen2.5-Omni, we combine selected-layer internal pruning with an input-side audio-video token compression module. For LLaVA-1.5, we apply the same layer selection principle to a vision-language backbone with internal token pruning. Although the two backbones differ in modality composition and implementation details, both support the central question of this paper: identifying a suitable internal pruning stage is critical for efficient multimodal inference.
+  </p>
+  <p>Our contributions are three-fold:</p>
+  <ul>
+    <li>We identify internal pruning layer selection as a key and underexplored factor in efficient multimodal inference.</li>
+    <li>We propose a calibration-based layer scoring strategy that combines representation stability and multimodal attention to select backbone-specific pruning layers.</li>
+    <li>We validate the approach on heterogeneous MLLM backbones, showing improved accuracy-efficiency trade-offs over random-layer and fixed-layer baselines.</li>
+  </ul>
+
+  <div class="figure-box">
+    <strong>Figure 1: Overview of the Proposed Pipeline</strong><br /><br />
+    Suggested content: calibration set → layer-wise stability and attention statistics → score candidate layers → select backbone-specific pruning layer → perform one-shot internal pruning during inference. For Qwen2.5-Omni, also show input-side multimodal compression before the LLM.
+  </div>
+  <div class="caption">Suggested placement: end of Introduction or beginning of Method.</div>
+
+  <h2>2. Method</h2>
+
+  <h3>2.1 Problem Setting and Overview</h3>
+  <p>
+    We consider efficient inference for multimodal large language models that process a sequence of text tokens together with visual and, when available, audio tokens. Let the multimodal input sequence be denoted by:
+  </p>
+  <div class="equation">X = {x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>T</sub>}</div>
+  <p>
+    Instead of pruning tokens at an arbitrary transformer layer, we ask a more specific question: at which layer should internal token pruning be applied? We address this question with a two-stage strategy. First, we use a small calibration set to analyze layer-wise multimodal behavior and select a backbone-specific pruning layer. Second, during inference, we perform internal token pruning only once at the selected layer. For Qwen2.5-Omni, this internal pruning is combined with an input-side multimodal compression stage; for LLaVA-1.5, we focus on the internal pruning stage itself.
+  </p>
+
+  <h3>2.2 Calibration-Based Layer Selection</h3>
+
+  <h4>2.2.1 Layer-wise Stability</h4>
+  <p>
+    For a given backbone, we collect hidden states from consecutive transformer layers using a calibration set. Let h<sub>l,t</sub> denote the hidden state of token t at layer l. We compute adjacent-layer cosine similarity for multimodal tokens and convert it into a change-strength signal.
+  </p>
+  <p>For the audio-visual backbone:</p>
+  <div class="equation">C<sub>l</sub> = 1 - 0.5 (cos<sup>(v)</sup><sub>l</sub> + cos<sup>(a)</sup><sub>l</sub>)</div>
+  <p>For the vision-language backbone:</p>
+  <div class="equation">C<sub>l</sub> = 1 - cos<sup>(img)</sup><sub>l</sub></div>
+  <p>
+    To reduce local noise, we compute a smoothed stability score in a local layer window and normalize it into [0, 1].
+  </p>
+
+  <h4>2.2.2 Layer-wise Multimodal Attention</h4>
+  <p>
+    Next, we estimate how strongly multimodal tokens remain involved in each layer by measuring the attention mass received by multimodal tokens. For the audio-visual backbone, we combine normalized attention over video and audio tokens. For the vision-language backbone, we use normalized image-token attention.
+  </p>
+
+  <h4>2.2.3 Final Layer Score</h4>
+  <p>We combine the two signals into a base score:</p>
+  <div class="equation">B<sub>l</sub> = αA<sub>l</sub> + βStab̂<sub>l</sub></div>
+  <p>
+    To avoid selecting overly early layers where multimodal fusion is still unstable, we estimate a change-start layer l<sub>0</sub> from the change-strength curve and apply a post-change weighting term. To encourage earlier pruning after the main fusion stage, we further introduce an early bonus term. The final score is:
+  </p>
+  <div class="equation">S<sub>l</sub> = B<sub>l</sub> · w<sub>l</sub> · e<sub>l</sub></div>
+  <p>and the selected pruning layer is:</p>
+  <div class="equation">l* = arg max S<sub>l</sub></div>
+
+  <div class="figure-box">
+    <strong>Figure 2: Layer Selection Signals</strong><br /><br />
+    Suggested content: one curve for multimodal attention, one curve for stability or change strength, and one marker showing the selected pruning layer. This figure should visually explain why the chosen layer is neither too early nor too late.
+  </div>
+  <div class="caption">Suggested placement: immediately after the layer scoring subsection.</div>
+
+  <h3>2.3 Selected-Layer Internal Token Pruning</h3>
+  <p>
+    After selecting l*, we perform internal token pruning only once at that layer during inference. Let H<sub>l</sub> ∈ R<sup>T×d</sup> denote the hidden states entering the selected layer. We compute token importance from self-attention and retain only a fraction of tokens.
+  </p>
+  <p>If the keep ratio is ρ, we keep:</p>
+  <div class="equation">K = max(1, floor(ρT<sub>l</sub>))</div>
+  <p>
+    tokens with the highest importance scores. The retained tokens are sorted to preserve sequence order, and the corresponding hidden states, attention masks, position indices, and cached key-value states are updated consistently.
+  </p>
+
+  <h3>2.4 Backbone-Specific Instantiations</h3>
+
+  <h4>2.4.1 Qwen2.5-Omni</h4>
+  <p>
+    For Qwen2.5-Omni, we combine the selected-layer internal pruning with an input-side compression module that reduces audio and video tokens before they enter the language model. Audio tokens are compressed by preserving dominant tokens and contextual anchors, while video tokens are reduced frame by frame with representative-token selection and temporal similarity cues. The shortened sequence is then processed by the language model, where internal pruning is applied at the selected layer.
+  </p>
+
+  <h4>2.4.2 LLaVA-1.5</h4>
+  <p>
+    For LLaVA-1.5, we focus on internal pruning in the vision-language backbone. A calibration set is used to compute layer-wise image attention and adjacent-layer hidden-state similarity, and the resulting layer score determines the pruning point. Internal token pruning is then performed only at the selected layer.
+  </p>
+
+  <h2>3. Experiments</h2>
+
+  <h3>3.1 Experimental Setup</h3>
+  <p>
+    We evaluate the proposed method on two heterogeneous multimodal backbones: Qwen2.5-Omni and LLaVA-1.5. For Qwen2.5-Omni, we report results on audio-visual reasoning benchmarks. For LLaVA-1.5, we report results on MME. We compare against random-layer pruning, fixed-layer pruning, and representative token compression baselines. We report task accuracy together with efficiency-related metrics such as TFLOPs and token budget.
+  </p>
+
+  <h3>3.2 Main Results</h3>
+  <p>
+    Across both backbones, the proposed layer selection strategy is expected to achieve a better accuracy-efficiency trade-off than random-layer and fixed-layer alternatives, while remaining competitive with strong compression baselines.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Backbone</th>
+        <th>Method</th>
+        <th>TFLOPs</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Qwen2.5-Omni</td><td>Full model</td><td>--</td><td>--</td></tr>
+      <tr><td>Qwen2.5-Omni</td><td>Random layer</td><td>--</td><td>--</td></tr>
+      <tr><td>Qwen2.5-Omni</td><td>Fixed layer</td><td>--</td><td>--</td></tr>
+      <tr><td>Qwen2.5-Omni</td><td>Ours</td><td>--</td><td>--</td></tr>
+      <tr><td>LLaVA-1.5</td><td>Full model</td><td>--</td><td>--</td></tr>
+      <tr><td>LLaVA-1.5</td><td>Random layer</td><td>--</td><td>--</td></tr>
+      <tr><td>LLaVA-1.5</td><td>Fixed layer</td><td>--</td><td>--</td></tr>
+      <tr><td>LLaVA-1.5</td><td>Ours</td><td>--</td><td>--</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.3 Ablation and Analysis</h3>
+  <p>
+    We further analyze the effect of layer choice, the contribution of the stability and attention terms, and the relationship between the proposed layer score and downstream performance.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Variant</th>
+        <th>TFLOPs</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Attention only</td><td>--</td><td>--</td></tr>
+      <tr><td>Stability only</td><td>--</td><td>--</td></tr>
+      <tr><td>Combined score</td><td>--</td><td>--</td></tr>
+      <tr><td>Random layer</td><td>--</td><td>--</td></tr>
+      <tr><td>Fixed middle layer</td><td>--</td><td>--</td></tr>
+    </tbody>
+  </table>
+
+  <div class="figure-box">
+    <strong>Figure 3: Layer Sensitivity and Correlation Analysis</strong><br /><br />
+    Suggested content: performance versus prune layer, score versus downstream performance, or a correlation plot showing that the proposed score aligns with better pruning layers.
+  </div>
+  <div class="caption">Suggested placement: after the ablation subsection.</div>
+
+  <h3>3.4 Discussion</h3>
+  <p>
+    The results should show that the effectiveness of internal pruning strongly depends on where pruning is applied. A suitable pruning layer typically appears after major multimodal transformation has occurred but before redundant computation accumulates in later layers. This observation supports the proposed combination of representation stability and multimodal attention for layer selection.
+  </p>
+
+  <h2>4. Conclusion</h2>
+  <p>
+    We study the underexplored problem of internal pruning layer selection for efficient multimodal inference. We propose a calibration-based, stability- and attention-guided scoring strategy that selects a backbone-specific pruning layer and applies internal token pruning only once at that stage. Experiments on heterogeneous MLLM backbones show that this simple strategy improves the accuracy-efficiency trade-off over random and fixed-layer alternatives.
+  </p>
+
+  <h2>Writing Checklist</h2>
+  <ul>
+    <li>Replace placeholder tables with final benchmark numbers.</li>
+    <li>Replace placeholder figures with polished plots from current experiments.</li>
+    <li>Add related work citations in Introduction and a dedicated Related Work section if page budget allows.</li>
+    <li>Convert this draft to the official ICASSP 2027 paper kit before submission.</li>
+    <li>Tighten wording once all experiment settings and final claims are fixed.</li>
+  </ul>
+</body>
+</html>

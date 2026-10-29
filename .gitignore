@@ -2,6 +2,15 @@
 dist/
 .astro/
 
+paper/
+
+.trae/
+
+docs/superpowers/plans/
+docs/superpowers/specs/
+
+
+
 ### Vercel ###
 .vercel/
 

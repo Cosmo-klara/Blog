@@ -77,8 +77,14 @@ Fractal：Google Robot 单臂任务
 pick_object：94%
 move_near：100%
 
-### 任务
+#### lerobot
 
 [lerobot/act_aloha_sim_insertion_human](https://www.modelscope.cn/models/lerobot/act_aloha_sim_insertion_human)
 
-ACT训练 100000 步 ，在该仿真任务上评测 500 个 episode，成功率 20.6% ；
+ACT训练 100000 步，在该仿真任务上评测 500 个 episode，成功率 20.6% ；
+
+#### Meta-World(单臂)
+
+`peg-insert-side-v3`: 抓起销，调整方向，对准盒子侧面的孔，再从侧面插入
+
+`Assemble nut`:抓起螺母，使螺母孔对准销，再把螺母放到销上；螺母和销的位置随机。

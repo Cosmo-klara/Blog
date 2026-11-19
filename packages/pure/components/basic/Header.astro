@@ -48,8 +48,7 @@ import { Icon } from '../user'
         id='toggleDarkMode'
         class='group/dark box-content size-5 rounded-md border p-1.5 transition-colors hover:bg-border sm:group-[.not-top]:rounded-xl'
       >
-        <span class='sr-only'>Dark Theme</span>
-        <Icon class='system size-5 group-hover/dark:text-primary' name='computer' />
+        <span class='sr-only'>Toggle color theme</span>
         <Icon class='light hidden size-5 group-hover/dark:text-primary' name='sun' />
         <Icon class='dark hidden size-5 group-hover/dark:text-primary' name='moon' />
       </button>
@@ -69,7 +68,13 @@ import { Icon } from '../user'
 <script is:inline>
   const toggleDarkModeElement = document.getElementById('toggleDarkMode')
   if (toggleDarkModeElement) {
-    toggleDarkModeElement.dataset.theme = localStorage.getItem('theme') || 'system'
+    const savedTheme = localStorage.getItem('theme')
+    toggleDarkModeElement.dataset.theme =
+      savedTheme === 'dark' || savedTheme === 'light'
+        ? savedTheme
+        : window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
   }
 </script>
 <script>
@@ -187,17 +192,11 @@ import { Icon } from '../user'
   /* dark light mode toggle */
   #toggleDarkMode {
     &[data-theme='dark'] {
-      & .system {
-        display: none;
-      }
       & .dark {
         display: block;
       }
     }
     &[data-theme='light'] {
-      & .system {
-        display: none;
-      }
       .light {
         display: block;
       }

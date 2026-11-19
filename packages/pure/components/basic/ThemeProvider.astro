@@ -6,14 +6,14 @@
 <script is:inline>
   function simpleSetTheme() {
     let theme = localStorage.getItem('theme')
-    // If undefined or 'system', get from system
-    if (!theme || theme === 'system') {
+    if (theme !== 'dark' && theme !== 'light') {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
     document.documentElement.classList.toggle('dark', theme === 'dark')
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'dark' ? '#0B0B10' : '#FCFCFD')
+      ?.setAttribute('content', theme === 'dark' ? '#16171D' : '#FCFCFD')
+    document.querySelector('#toggleDarkMode')?.setAttribute('data-theme', theme)
   }
   simpleSetTheme()
   document.addEventListener('astro:page-load', () => simpleSetTheme())
@@ -21,12 +21,12 @@
 
 <script>
   import { Icons } from '../../libs/icons'
-  import { getTheme, listenThemeChange, setTheme } from '../../utils'
+  import { getSystemTheme, getTheme, listenThemeChange, setTheme } from '../../utils'
 
   const syncTheme = () => {
-    const preference = getTheme() ?? 'system'
-    setTheme(preference)
-    document.querySelector('#toggleDarkMode')?.setAttribute('data-theme', preference)
+    const theme = getTheme() ?? getSystemTheme()
+    setTheme(theme)
+    document.querySelector('#toggleDarkMode')?.setAttribute('data-theme', theme)
   }
 
   listenThemeChange()

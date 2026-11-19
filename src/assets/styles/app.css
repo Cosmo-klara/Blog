@@ -23,14 +23,14 @@
   --foreground: 0 0% 98%;
   --muted-foreground: 240 5% 74.9%;
   /* Background */
-  --background: 240 20.54% 5.2%;
-  --muted: 240 5.9% 13%;
-  --card: 240 3.7% 24.9%;
+  --background: 225 14% 10%;
+  --muted: 225 12% 16%;
+  --card: 225 10% 20%;
 
   /* Basic */
-  --border: 240 3.7% 22.9%;
-  --input: 240 3.7% 17.9%;
-  --ring: 240 4.9% 83.9%;
+  --border: 225 9% 27%;
+  --input: 225 10% 22%;
+  --ring: 195 50% 72%;
 }
 :root {
   --un-default-border-color: hsl(var(--border) / 1);

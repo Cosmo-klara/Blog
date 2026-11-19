@@ -8,13 +8,24 @@ import { cn } from 'astro-pure/utils'
 interface Props {
   class?: string
   title: string
-  tools: {
-    name: string
-    description: string
-    href: string
-    icon: Promise<typeof import('*.svg?raw')> | ImageMetadata
-    darkIcon?: Promise<typeof import('*.svg?raw')> | ImageMetadata
-  }[]
+  tools: (
+    | {
+        name: string
+        description: string
+        href: string
+        mark: string
+        icon?: never
+        darkIcon?: never
+      }
+    | {
+        name: string
+        description: string
+        href: string
+        icon: Promise<typeof import('*.svg?raw')> | ImageMetadata
+        darkIcon?: Promise<typeof import('*.svg?raw')> | ImageMetadata
+        mark?: never
+      }
+  )[]
 }
 
 const { class: className, title, tools, ...props } = Astro.props
@@ -37,9 +48,14 @@ function isImageMetadata(obj: unknown): obj is ImageMetadata {
           href={tool.href}
           id={tool.name}
           target='_blank'
+          rel='noreferrer'
         >
           <div class='flex items-center gap-x-3 rounded-lg border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted'>
-            {tool.darkIcon ? (
+            {tool.mark ? (
+              <div class='flex size-10 shrink-0 items-center justify-center rounded-lg bg-card text-lg font-medium text-foreground'>
+                <span class='font-mono'>{tool.mark}</span>
+              </div>
+            ) : tool.darkIcon ? (
               <>
                 {isImageMetadata(tool.icon) ? (
                   <div class='size-10 rounded-lg bg-card p-2 dark:hidden'>
@@ -67,7 +83,7 @@ function isImageMetadata(obj: unknown): obj is ImageMetadata {
                   />
                 )}
               </>
-            ) : (
+            ) : tool.icon ? (
               <>
                 {isImageMetadata(tool.icon) ? (
                   <div class='size-10 rounded-lg bg-card p-2'>
@@ -77,7 +93,7 @@ function isImageMetadata(obj: unknown): obj is ImageMetadata {
                   <Svg src={tool.icon} class='size-10 rounded-lg bg-card fill-foreground p-2' />
                 )}
               </>
-            )}
+            ) : null}
             <div class='z-20 flex flex-col'>
               <div class='font-medium text-foreground'>{tool.name}</div>
               <div class='font-normal'>{tool.description}</div>

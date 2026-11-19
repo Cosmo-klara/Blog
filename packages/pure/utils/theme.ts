@@ -1,13 +1,23 @@
-export function getTheme() {
-  return localStorage.getItem('theme')
+export type ThemePreference = 'system' | 'dark' | 'light'
+
+let systemThemeListenerRegistered = false
+
+export function getTheme(): ThemePreference | null {
+  const theme = localStorage.getItem('theme')
+  return theme === 'system' || theme === 'dark' || theme === 'light' ? theme : null
 }
 
-export function listenThemeChange(theme?: string) {
+export function listenThemeChange(theme?: ThemePreference) {
   // If theme is specified, no need to listen window theme change
   if (theme && theme !== 'system') return
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    setTheme(e.matches ? 'dark' : 'light')
+  if (systemThemeListenerRegistered) return
+
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  mediaQuery.addEventListener('change', () => {
+    const preference = getTheme()
+    if (!preference || preference === 'system') setTheme('system')
   })
+  systemThemeListenerRegistered = true
 }
 
 export function setTheme(theme?: string, save = false) {

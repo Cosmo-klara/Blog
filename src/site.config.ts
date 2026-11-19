@@ -20,10 +20,10 @@ export const theme: ThemeUserConfig = {
   socialCard: '/images/social-card.png',
   /** Specify the default language for this site. */
   locale: {
-    lang: 'en-US',
-    attrs: 'en_US',
+    lang: 'zh-CN',
+    attrs: 'zh_CN',
     // Date locale
-    dateLocale: 'en-US',
+    dateLocale: 'zh-CN',
     dateOptions: {
       day: 'numeric',
       month: 'short',
@@ -57,8 +57,7 @@ export const theme: ThemeUserConfig = {
       { title: 'Blog', link: '/blog' },
       { title: 'Projects', link: '/projects' },
       { title: 'Links', link: '/links' },
-      { title: 'About', link: '/about' },
-      { title: 'TODO', link: '/todo' }
+      { title: 'About', link: '/about' }
     ]
   },
 

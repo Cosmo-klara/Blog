@@ -21,10 +21,18 @@
 
 <script>
   import { Icons } from '../../libs/icons'
-  import { listenThemeChange } from '../../utils'
+  import { getTheme, listenThemeChange, setTheme } from '../../utils'
 
-  // Listen for theme change event
+  const syncTheme = () => {
+    const preference = getTheme() ?? 'system'
+    setTheme(preference)
+    document.querySelector('#toggleDarkMode')?.setAttribute('data-theme', preference)
+  }
+
   listenThemeChange()
+  syncTheme()
+  document.addEventListener('astro:page-load', syncTheme)
+
   // Listen for toast event
   document.addEventListener('toast', (e) => {
     const { message, time } = (e as CustomEvent).detail

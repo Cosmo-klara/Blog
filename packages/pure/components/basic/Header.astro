@@ -89,7 +89,7 @@ import { Icon } from '../user'
       // Dark Mode
       const darkModeBtn = this.querySelector('#toggleDarkMode') as HTMLElement
       darkModeBtn.addEventListener('click', () => {
-        const newTheme = setTheme(undefined, true)
+        const newTheme = setTheme(undefined, true, darkModeBtn)
         darkModeBtn.dataset.theme = newTheme
         showToast({ message: `Set theme to ${newTheme}` })
       })

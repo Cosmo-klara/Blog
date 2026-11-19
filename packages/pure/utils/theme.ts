@@ -20,7 +20,11 @@ export function listenThemeChange(theme?: ThemePreference) {
   systemThemeListenerRegistered = true
 }
 
-export function setTheme(theme?: string, save = false) {
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (callback: () => void) => { finished: Promise<void> }
+}
+
+export function setTheme(theme?: string, save = false, transitionOrigin?: HTMLElement) {
   const themes = ['system', 'dark', 'light']
   if (theme) {
     if (!themes.includes(theme)) return
@@ -41,11 +45,34 @@ export function setTheme(theme?: string, save = false) {
     listenThemeChange(theme)
   }
 
-  // Set theme
-  document.documentElement.classList.toggle('dark', targetTheme === 'dark')
-  document
-    .querySelector('meta[name="theme-color"]')
-    ?.setAttribute('content', targetTheme === 'dark' ? '#0B0B10' : '#FCFCFD')
+  const applyTheme = () => {
+    document.documentElement.classList.toggle('dark', targetTheme === 'dark')
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', targetTheme === 'dark' ? '#0B0B10' : '#FCFCFD')
+  }
+
+  const transitionDocument = document as ViewTransitionDocument
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (transitionOrigin && transitionDocument.startViewTransition && !reduceMotion) {
+    const bounds = transitionOrigin.getBoundingClientRect()
+    const root = document.documentElement
+    root.style.setProperty('--theme-transition-x', `${bounds.left + bounds.width / 2}px`)
+    root.classList.add('theme-transitioning')
+
+    try {
+      const transition = transitionDocument.startViewTransition(applyTheme)
+      void transition.finished.then(
+        () => root.classList.remove('theme-transitioning'),
+        () => root.classList.remove('theme-transitioning')
+      )
+    } catch {
+      root.classList.remove('theme-transitioning')
+      applyTheme()
+    }
+  } else {
+    applyTheme()
+  }
 
   return theme
 }

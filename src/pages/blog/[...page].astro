@@ -49,7 +49,7 @@ const paginationProps = {
 }
 ---
 
-<PageLayout {meta}>
+<PageLayout {meta} highlightColor='hsl(var(--primary))'>
   <Button title='Back' href='/' variant='back' />
   <main class='mt-6 lg:mt-10'>
     <div id='content-header' class='animate'>
@@ -59,8 +59,8 @@ const paginationProps = {
       page.data.length === 0 ? (
         <p>No posts yet.</p>
       ) : (
-        <div class='grid gap-y-16 sm:grid-cols-[3fr_1fr] sm:gap-x-8'>
-          <section aria-label='Blog posts list' class='animate' id='content'>
+        <div class='grid gap-y-12 lg:grid-cols-[minmax(0,3fr)_minmax(14rem,1fr)] lg:gap-x-8'>
+          <section aria-label='Blog posts list' class='animate min-w-0' id='content'>
             {/* header */}
             <div class='mb-3 flex flex-col justify-between text-sm sm:mb-5 sm:flex-row'>
               <span class='text-muted-foreground'>
@@ -71,7 +71,7 @@ const paginationProps = {
               </a>
             </div>
             {/* posts */}
-            <ul class='flex flex-col gap-y-4 text-start'>
+            <ul class='grid grid-cols-1 items-stretch gap-4 text-start sm:grid-cols-2 sm:gap-5'>
               {page.data.map((post) => (
                 <PostPreview {post} detailed />
               ))}

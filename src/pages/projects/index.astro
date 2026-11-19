@@ -1,131 +1,88 @@
 ---
 // import { Image } from 'astro:assets'
 
-import { Button, Card, Collapse, Icon } from 'astro-pure/user'
+import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
-// import Section from '@/components/home/Section.astro'
-import ProjectSection from '@/components/projects/ProjectSection.astro'
-import Sponsors from '@/components/projects/Sponsors.astro'
 import Sponsorship from '@/components/projects/Sponsorship.astro'
-// import KeyIcon from '@/assets/icons/key.svg'
 import wechat from '@/assets/wechat-qrcode.png'
 
 const headings = [
-  { depth: 2, slug: 'programs', text: 'Programs' },
-  { depth: 2, slug: 'learnings', text: 'Learnings' },
-  { depth: 2, slug: 'others', text: 'Others' },
   { depth: 2, slug: 'sponsorship', text: 'Sponsorship' }
 ]
 ---
 
-<!-- <PageLayout title='Projects' {headings} view> -->
 <PageLayout title='Projects' {headings}>
-  等我有时间去登另一个号再展示吧
-  <Card
-    as='a'
-    heading='Cosmo-klara'
-    subheading='Beijing Institute of Technology'
-    date='Researcher / Developer'
-    href='https://github.com/Cosmo-klara'
-  >
-    <img
-      class='absolute end-0 z-0 m-0 -my-3 h-full w-3/5 object-cover opacity-50'
-      src='/images/banner.webp'
-    />
-  </Card>
+  <div class='not-prose grid gap-5 md:grid-cols-[minmax(0,1.25fr)_minmax(17rem,0.75fr)] md:items-stretch'>
+    <div class='flex flex-col justify-center rounded-2xl border border-border/70 bg-muted/45 p-5 sm:p-7'>
+      <p class='mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary'>Projects &amp; research</p>
+      <h2 class='mb-3 text-2xl font-semibold leading-tight text-foreground sm:text-3xl'>Things I build and learn</h2>
+      <p class='m-0 max-w-prose text-sm leading-relaxed text-muted-foreground'>
+        这里记录我参与的研究、开发与学习项目。欢迎通过 GitHub 交流合作。
+      </p>
+      <Button title='赞助与支持' class='mt-5 w-fit' href='#sponsorship'>
+        <Icon class='size-5' name='receive-money' slot='before' />
+      </Button>
+    </div>
 
-  <p>如果您认为合作项目会有用或有趣，您可以通过捐款支持我的工作或联系我讨论项目。</p>
-  <p>
-    If you think it would be useful or interesting to collaborate on a project, you can donate to
-    support my work or contact me to discuss a project.
-  </p>
-  <Button title='Sponsorship' class='w-fit' href='#sponsorship'>
-    <Icon class='size-5' name='receive-money' slot='before' />
-  </Button>
+    <a
+      class='project-profile group relative isolate flex min-h-56 flex-col justify-end overflow-hidden rounded-2xl border border-border/70 bg-muted p-5 text-foreground no-underline transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 sm:p-6'
+      href='https://github.com/Cosmo-klara'
+      target='_blank'
+      rel='noreferrer'
+      data-spotlight
+    >
+      <img
+        class='pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-35 transition-opacity duration-300 group-hover:opacity-50'
+        src='/images/banner.webp'
+        alt=''
+      />
+      <div aria-hidden='true' class='absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/65 to-background/10' />
+      <div aria-hidden='true' class='project-profile-light pointer-events-none absolute inset-0 -z-10' />
+      <span class='mb-2 inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-background/75 px-3 py-1 text-xs font-medium text-muted-foreground'>
+        <Icon name='github' class='size-4' /> GitHub profile
+      </span>
+      <h2 class='m-0 text-2xl font-semibold'>Cosmo-klara</h2>
+      <p class='mb-0 mt-1 text-sm text-muted-foreground'>Researcher · Developer</p>
+      <span class='absolute right-5 top-5 rounded-full border border-border/80 bg-background/75 p-2 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary'>
+        <svg aria-hidden='true' viewBox='0 0 24 24' class='size-4' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+          <path d='M5 12h14' /><path d='m12 5 7 7-7 7' />
+        </svg>
+      </span>
+    </a>
+  </div>
 
-  <h2 id='programs'>Programs</h2>
-  <ProjectSection
-    projects={[
-      // {
-      //   name: '📒 Notie',
-      //   description:
-      //     'Android note App complies with Material You specifications, developed using Java',
-      //   links: [
-      //     { type: 'github', href: 'https://github.com/cworld1/notie' },
-      //     { type: 'release', href: 'https://github.com/cworld1/notie/releases' }
-      //   ]
-      // },
-      // {
-      //   name: '💄 PKU Art',
-      //   description: 'A script to beautify pku course website',
-      //   links: [
-      //     { type: 'github', href: 'https://github.com/zhuozhiyongde/pku-art' },
-      //     { type: 'site', href: 'https://github.com/zhuozhiyongde/pku-art' },
-      //     { type: 'doc', href: 'https://docs.arthals.ink/docs/pku-art' }
-      //   ]
-      // }
-    ]}
-  />
-  <Collapse title='Some old projects'>
-    <ProjectSection
-      projects={[
-        // {
-        //   name: 'Search Switcher',
-        //   description: 'Add links to each other in search engines',
-        //   links: [{ type: 'github', href: 'https://github.com/cworld1/search-switcher' }]
-        // }
-      ]}
-    />
-  </Collapse>
-
-  <h2 id='learnings'>Learnings</h2>
-  <ProjectSection
-    class='my-2'
-    projects={[
-      // {
-      //   name: 'Rust Learning',
-      //   description: 'Some notes and code about CWorld learning Rust',
-      //   links: [{ type: 'github', href: 'https://github.com/cworld1/rust-learning' }]
-      // }
-    ]}
-  />
-
-  <h2 id='others'>Others</h2>
-  <ProjectSection
-    projects={[
-      // {
-      //   name: 'CWorld',
-      //   description: "CWorld's Github",
-      //   links: [{ type: 'github', href: 'https://github.com/cworld1' }]
-      // }
-    ]}
-  />
-
-  <!-- sponsorship -->
   <h2 id='sponsorship'>Sponsorship</h2>
-  <p>赞助后请留言或与我联系哦，推荐通过我的邮箱联系我。</p>
-  <p>Please leave a message or contact me proactively after sponsorship.</p>
-  <Sponsorship methods={[{ name: 'WeChat', icon: 'wechat-pay', image: wechat }]} />
-  <p>Thanks to the following sponsors:</p>
-  <Sponsors sponsors={[]} />
+  <p>如果你觉得我的工作有帮助，欢迎赞助支持；赞助后也欢迎留言或联系我。</p>
+  <Sponsorship class='justify-start' methods={[{ name: 'WeChat', icon: 'wechat-pay', image: wechat }]} />
 </PageLayout>
 
-<style>
-  .sponsorship-card {
-    & .sponsorship-card-img {
-      opacity: 0.3;
-      --un-blur: blur(4px);
-      filter: var(--un-blur);
-    }
+<script>
+  import { setupSpotlights } from '@/utils/spotlight'
 
-    &:hover {
-      & .sponsorship-card-icon {
-        opacity: 0;
-      }
-      & .sponsorship-card-img {
-        opacity: 1;
-        --un-blur: blur(0);
-      }
+  setupSpotlights()
+  document.addEventListener('astro:page-load', () => setupSpotlights())
+</script>
+
+<style>
+  .project-profile-light {
+    opacity: 0;
+    background: radial-gradient(
+      280px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+      hsl(var(--primary) / 0.22),
+      transparent 72%
+    );
+    transition: opacity 250ms ease;
+  }
+
+  .project-profile:hover .project-profile-light,
+  .project-profile:focus-visible .project-profile-light {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-profile,
+    .project-profile-light {
+      transition: none;
     }
   }
 </style>

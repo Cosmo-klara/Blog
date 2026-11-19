@@ -21,37 +21,18 @@ const { class: className, methods, ...props } = Astro.props
 <div class={cn('flex flex-col justify-center gap-4 sm:flex-row', className)} {...props}>
   {
     methods.map((item) => (
-      <div class='sponsorship-card relative justify-center overflow-hidden rounded-xl border bg-white'>
-        <div class='sponsorship-card-icon absolute bottom-0 end-0 start-0 top-0 flex items-center justify-center transition-opacity'>
-          <Icon class='size-20' name={item.icon} />
+      <div class='sponsorship-card group w-fit rounded-2xl border border-border/70 bg-card p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5'>
+        <div class='mb-3 flex items-center gap-2 px-1 text-sm font-medium text-foreground'>
+          <Icon class='size-5 text-primary' name={item.icon} />
+          <span>{item.name}</span>
         </div>
         <Image
-          class='sponsorship-card-img mx-auto my-0 max-w-60 blur-sm transition-opacity'
+          class='mx-auto my-0 w-56 rounded-xl bg-white p-2'
           src={item.image}
-          alt={item.name}
+          alt={`${item.name} sponsorship QR code`}
           loading='lazy'
         />
       </div>
     ))
   }
 </div>
-
-<style>
-  .sponsorship-card {
-    & .sponsorship-card-img {
-      opacity: 0.3;
-      --un-blur: blur(4px);
-      filter: var(--un-blur);
-    }
-
-    &:hover {
-      & .sponsorship-card-icon {
-        opacity: 0;
-      }
-      & .sponsorship-card-img {
-        opacity: 1;
-        --un-blur: blur(0);
-      }
-    }
-  }
-</style>

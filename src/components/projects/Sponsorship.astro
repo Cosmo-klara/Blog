@@ -26,61 +26,26 @@ const { class: className, methods, ...props } = Astro.props
           <Icon class='size-5 text-primary' name={item.icon} />
           <span>{item.name}</span>
         </div>
-        <details class='sponsorship-reveal relative overflow-hidden rounded-xl'>
-          <Image
-            class='sponsorship-qr mx-auto my-0 w-56 rounded-xl bg-white p-2'
-            src={item.image}
-            alt={`${item.name} sponsorship QR code`}
-            loading='lazy'
-          />
-          <summary class='sponsorship-toggle absolute inset-0 flex cursor-pointer list-none items-center justify-center rounded-xl bg-background/35 p-4 text-center text-sm font-medium text-foreground backdrop-blur-[1px] transition-all hover:bg-background/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary'>
-            <span class='rounded-full border border-border/80 bg-background/90 px-4 py-2 shadow-sm'>
-              <span class='sponsorship-hidden-label'>点击显示二维码</span>
-              <span class='sponsorship-visible-label'>点击隐藏二维码</span>
-            </span>
-          </summary>
-        </details>
+        <Image
+          class='sponsorship-qr mx-auto my-0 w-56 rounded-xl bg-white p-2'
+          src={item.image}
+          alt={`${item.name} sponsorship QR code`}
+          loading='lazy'
+        />
       </div>
     ))
   }
 </div>
 
 <style>
-  .sponsorship-qr {
-    filter: blur(8px);
-    transition: filter 250ms ease;
-  }
+  @media (hover: hover) and (pointer: fine) {
+    .sponsorship-qr {
+      filter: blur(7px);
+      transition: filter 250ms ease;
+    }
 
-  .sponsorship-reveal[open] .sponsorship-qr {
-    filter: blur(0);
-  }
-
-  .sponsorship-reveal[open] .sponsorship-toggle {
-    inset: 0.5rem 0.5rem auto auto;
-    padding: 0;
-    border-radius: 9999px;
-    background: transparent;
-    backdrop-filter: none;
-  }
-
-  .sponsorship-visible-label {
-    display: none;
-  }
-
-  .sponsorship-reveal[open] .sponsorship-hidden-label {
-    display: none;
-  }
-
-  .sponsorship-reveal[open] .sponsorship-visible-label {
-    display: inline;
-  }
-
-  .sponsorship-reveal[open] .sponsorship-toggle > span {
-    padding: 0.375rem 0.625rem;
-    font-size: 0.75rem;
-  }
-
-  .sponsorship-toggle::-webkit-details-marker {
-    display: none;
+    .sponsorship-card:hover .sponsorship-qr {
+      filter: blur(0);
+    }
   }
 </style>

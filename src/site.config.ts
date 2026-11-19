@@ -23,7 +23,7 @@ export const theme: ThemeUserConfig = {
     lang: 'zh-CN',
     attrs: 'zh_CN',
     // Date locale
-    dateLocale: 'zh-CN',
+    dateLocale: 'en-US',
     dateOptions: {
       day: 'numeric',
       month: 'short',

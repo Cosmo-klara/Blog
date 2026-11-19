@@ -19,21 +19,21 @@ const postDate = data.updatedDate ?? data.publishDate
 ---
 
 <li
-  class={cn('post-preview', className)}
+  class={cn('post-preview h-full', className)}
   style={detailed &&
     data.heroImage?.color &&
     `--preview-highlight:color-mix(in srgb,${data.heroImage.color} 40%,hsl(var(--foreground)/var(--un-text-opacity,1)))`}
 >
   <article
     class={cn(
-      'post-preview-card relative flex flex-col overflow-hidden rounded-2xl border bg-background transition-all duration-300',
+      'post-preview-card relative flex h-full flex-col overflow-hidden rounded-2xl border bg-background transition-all duration-300',
       detailed ? 'border-border/70' : 'border-transparent'
     )}
   >
     <a
       class={cn(
         'group relative isolate block min-w-0 no-underline',
-        detailed && 'min-h-40 overflow-hidden'
+        detailed && 'flex min-h-36 flex-1 flex-col overflow-hidden'
       )}
       href={`/blog/${id}`}
       data-astro-prefetch
@@ -43,7 +43,7 @@ const postDate = data.updatedDate ?? data.publishDate
           <div aria-hidden='true' class='pointer-events-none absolute inset-0 z-0 overflow-hidden bg-muted'>
             {data.heroImage ? (
               <Image
-                class='h-full w-full object-cover opacity-40 transition-transform duration-500 group-hover:scale-[1.04] dark:opacity-30'
+                class='h-full w-full scale-[1.02] object-cover opacity-50 blur-[1px] transition-transform duration-500 group-hover:scale-[1.05] dark:opacity-35'
                 loading='lazy'
                 {...data.heroImage}
                 alt=''
@@ -55,7 +55,7 @@ const postDate = data.updatedDate ?? data.publishDate
                 style='background:linear-gradient(135deg,hsl(var(--muted)),hsl(var(--card)))'
               />
             )}
-            <div class='absolute inset-0 bg-gradient-to-br from-background/10 via-background/40 to-background/65' />
+            <div class='absolute inset-0 bg-gradient-to-r from-background/85 via-background/60 to-background/35' />
           </div>
         )
       }
@@ -63,7 +63,9 @@ const postDate = data.updatedDate ?? data.publishDate
       <div
         class={cn(
           'relative flex flex-col gap-2',
-          detailed ? 'z-10 gap-1.5 p-3' : 'gap-1 px-5 py-2.5 max-sm:px-4 sm:flex-row sm:items-center'
+          detailed
+            ? 'z-10 flex-1 gap-1 p-2.5'
+            : 'gap-1 px-5 py-2.5 max-sm:px-4 sm:flex-row sm:items-center'
         )}
       >
         {detailed && (
@@ -116,7 +118,7 @@ const postDate = data.updatedDate ?? data.publishDate
               <p class='line-clamp-1 text-sm leading-relaxed text-muted-foreground'>
                 {data.description}
               </p>
-              <div class='flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-xs text-muted-foreground'>
+              <div class='mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-xs text-muted-foreground'>
                 <span class='flex items-center gap-1.5'>
                   <Icon name='time' class='size-4' />
                   {remarkPluginFrontmatter.minutesRead}
@@ -136,7 +138,7 @@ const postDate = data.updatedDate ?? data.publishDate
 
     {
       detailed && data.tags.length > 0 && (
-        <div class='px-3 pb-2.5'>
+        <div class='px-3 pb-2'>
           <ul class='tag-list flex flex-wrap gap-1.5 border-t border-border/60 pt-1.5' aria-label='Tags'>
             {data.tags.map((tag: string) => (
               <li>

@@ -71,7 +71,7 @@ const paginationProps = {
               </a>
             </div>
             {/* posts */}
-            <ul class='grid grid-cols-1 items-start gap-4 text-start sm:grid-cols-2 sm:gap-5'>
+            <ul class='grid grid-cols-1 items-stretch gap-4 text-start sm:grid-cols-2 sm:gap-5'>
               {page.data.map((post) => (
                 <PostPreview {post} detailed />
               ))}

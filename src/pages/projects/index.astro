@@ -1,7 +1,7 @@
 ---
 // import { Image } from 'astro:assets'
 
-import { Button, Icon } from 'astro-pure/user'
+import { Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
 import Sponsorship from '@/components/projects/Sponsorship.astro'
 import wechat from '@/assets/wechat-qrcode.png'
@@ -12,27 +12,16 @@ const headings = [
 ---
 
 <PageLayout title='Projects' {headings}>
-  <div class='not-prose grid gap-5 md:grid-cols-[minmax(0,1.25fr)_minmax(17rem,0.75fr)] md:items-stretch'>
-    <div class='flex flex-col justify-center rounded-2xl border border-border/70 bg-muted/45 p-5 sm:p-7'>
-      <p class='mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary'>Projects &amp; research</p>
-      <h2 class='mb-3 text-2xl font-semibold leading-tight text-foreground sm:text-3xl'>Things I build and learn</h2>
-      <p class='m-0 max-w-prose text-sm leading-relaxed text-muted-foreground'>
-        这里记录我参与的研究、开发与学习项目。欢迎通过 GitHub 交流合作。
-      </p>
-      <Button title='赞助与支持' class='mt-5 w-fit' href='#sponsorship'>
-        <Icon class='size-5' name='receive-money' slot='before' />
-      </Button>
-    </div>
-
+  <div class='not-prose'>
     <a
-      class='project-profile group relative isolate flex min-h-56 flex-col justify-end overflow-hidden rounded-2xl border border-border/70 bg-muted p-5 text-foreground no-underline transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 sm:p-6'
+      class='project-profile group relative isolate flex min-h-56 w-full flex-col justify-end overflow-hidden rounded-2xl border border-border/70 bg-muted p-5 text-foreground no-underline transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 md:max-w-2xl sm:p-6'
       href='https://github.com/Cosmo-klara'
       target='_blank'
       rel='noreferrer'
       data-spotlight
     >
       <img
-        class='pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-35 transition-opacity duration-300 group-hover:opacity-50'
+        class='pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-40'
         src='/images/banner.webp'
         alt=''
       />

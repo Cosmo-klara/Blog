@@ -11,7 +11,7 @@ export { cn } from './class-merge'
 export { getFormattedDate } from './date'
 
 // Theme
-export { getSystemTheme, getTheme, listenThemeChange, setTheme } from './theme'
+export { getSystemTheme, getTheme, setTheme } from './theme'
 export type { ThemePreference } from './theme'
 
 // Toast

@@ -16,22 +16,16 @@
     document.querySelector('#toggleDarkMode')?.setAttribute('data-theme', theme)
   }
   simpleSetTheme()
-  document.addEventListener('astro:page-load', () => simpleSetTheme())
+  document.addEventListener('astro:after-swap', simpleSetTheme)
+  document.addEventListener('astro:page-load', simpleSetTheme)
+  window.addEventListener('pageshow', simpleSetTheme)
+  document.addEventListener('prerenderingchange', simpleSetTheme)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') simpleSetTheme()
+  })
 </script>
 
 <script>
-  import { getSystemTheme, getTheme, listenThemeChange, setTheme } from '../../utils'
-
-  const syncTheme = () => {
-    const theme = getTheme() ?? getSystemTheme()
-    setTheme(theme)
-    document.querySelector('#toggleDarkMode')?.setAttribute('data-theme', theme)
-  }
-
-  listenThemeChange()
-  syncTheme()
-  document.addEventListener('astro:page-load', syncTheme)
-
   // Listen for toast event
   document.addEventListener('toast', (e) => {
     const { message, time } = (e as CustomEvent).detail

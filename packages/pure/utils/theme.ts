@@ -1,7 +1,5 @@
 export type ThemePreference = 'dark' | 'light'
 
-let systemThemeListenerRegistered = false
-
 export function getTheme(): ThemePreference | null {
   const theme = localStorage.getItem('theme')
   return theme === 'dark' || theme === 'light' ? theme : null
@@ -9,22 +7,6 @@ export function getTheme(): ThemePreference | null {
 
 export function getSystemTheme(): ThemePreference {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-export function listenThemeChange(theme: ThemePreference | null = getTheme()) {
-  // Follow the system until the user picks a theme.
-  if (theme) return
-  if (systemThemeListenerRegistered) return
-
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  mediaQuery.addEventListener('change', () => {
-    if (!getTheme()) {
-      const theme = getSystemTheme()
-      setTheme(theme)
-      document.querySelector('#toggleDarkMode')?.setAttribute('data-theme', theme)
-    }
-  })
-  systemThemeListenerRegistered = true
 }
 
 type ViewTransitionDocument = Document & {

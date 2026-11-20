@@ -115,9 +115,6 @@ export default defineConfig({
     // Enable SVGO optimization for SVG assets
     // https://docs.astro.build/en/reference/experimental-flags/svg-optimization/
     svgo: true,
-    // Enables pre-rendering your prefetched pages on the client in supported browsers.
-    // https://docs.astro.build/en/reference/experimental-flags/client-prerender/
-    clientPrerender: true,
     // Enables using the new Rust-based compiler for Astro files.
     // https://docs.astro.build/en/reference/experimental-flags/rust-compiler/
     rustCompiler: false,

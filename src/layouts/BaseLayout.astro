@@ -39,6 +39,8 @@ const {
       )
     }
     <div id='night-cursor-light' aria-hidden='true' />
+    <div id='pointer-star' aria-hidden='true' />
+    <canvas id='night-sky' aria-hidden='true'></canvas>
     <div
       id='main-container'
       class='relative z-[1] w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'
@@ -90,9 +92,12 @@ const {
       }
     </style>
     <script>
-      import { setupNightSpotlight } from '@/utils/spotlight'
+      import { setupNightSpotlight, setupPointerStar } from '@/utils/spotlight'
+      import { setupNightSky } from '@/utils/night-sky'
 
       setupNightSpotlight()
+      setupPointerStar()
+      setupNightSky()
       if (document.querySelector('comment-component')) {
         void import('@/components/waline/comment-client')
       }

@@ -31,9 +31,103 @@ html.dark {
 :root {
   --un-default-border-color: hsl(var(--border) / 1);
 }
+
+@media (any-hover: hover) and (any-pointer: fine) and (forced-colors: none) {
+  html.has-pointer-star,
+  html.has-pointer-star * {
+    cursor: none !important;
+  }
+
+  html.has-pointer-star :is(input, textarea, [contenteditable='true'], [role='textbox']) {
+    cursor: text !important;
+  }
+}
+
 html.dark #highlight-gradient {
   opacity: 0.08;
   max-height: 32rem;
+}
+
+#night-sky {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+html.dark #night-sky {
+  display: block;
+}
+
+#pointer-star {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  opacity: 0;
+  will-change: translate, opacity;
+  transform: translate(-50%, -50%);
+  translate: -100px -100px;
+  background: radial-gradient(
+    circle,
+    hsl(45 100% 96% / 0.98) 0 1px,
+    hsl(40 100% 80% / 0.86) 1.5px,
+    hsl(36 100% 68% / 0.28) 4px,
+    transparent 10px
+  );
+  transition: opacity 100ms ease-out;
+}
+
+#pointer-star::after {
+  content: '';
+  position: absolute;
+  inset: 50%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  opacity: 0;
+  background: hsl(42 100% 91% / 0.9);
+  box-shadow: 0 0 9px 5px hsl(37 100% 70% / 0.62);
+  transform: translate(-50%, -50%) scale(0.3);
+}
+
+#pointer-star[data-visible] {
+  opacity: 1;
+}
+
+#pointer-star[data-burst]::after {
+  animation: pointer-star-flash 520ms ease-out both;
+}
+
+html.dark #pointer-star {
+  background: radial-gradient(
+    circle,
+    hsl(45 100% 98% / 1) 0 1px,
+    hsl(40 100% 82% / 0.92) 1.5px,
+    hsl(36 100% 68% / 0.35) 4px,
+    transparent 10px
+  );
+}
+
+@keyframes pointer-star-flash {
+  0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.4); }
+  45% { opacity: 0.72; transform: translate(-50%, -50%) scale(4); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #pointer-star[data-burst]::after {
+    animation: none;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(2.2);
+  }
 }
 
 #night-cursor-light {
@@ -41,16 +135,16 @@ html.dark #highlight-gradient {
   position: fixed;
   top: 0;
   left: 0;
-  width: 32rem;
-  height: 32rem;
+  width: 25rem;
+  height: 25rem;
   z-index: 2;
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(
     closest-side,
-    hsl(38 100% 80% / 0.24),
-    hsl(31 100% 68% / 0.14) 36%,
-    hsl(25 90% 58% / 0.05) 68%,
+    hsl(38 100% 80% / 0.42),
+    hsl(31 100% 68% / 0.22) 36%,
+    hsl(25 90% 58% / 0.07) 68%,
     transparent
   );
   transform: translate(-50%, -50%);
@@ -61,6 +155,7 @@ html.dark #highlight-gradient {
   html.dark #night-cursor-light {
     display: block;
   }
+  html:not(.dark) #night-cursor-light[data-visible],
   html.dark #night-cursor-light[data-visible] {
     opacity: 1;
   }

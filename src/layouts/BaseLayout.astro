@@ -38,9 +38,10 @@ const {
         />
       )
     }
+    <div id='night-cursor-light' aria-hidden='true' />
     <div
       id='main-container'
-      class='w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'
+      class='relative z-[1] w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'
     >
       <Header />
       <div class='flex-1 w-full'>
@@ -88,5 +89,10 @@ const {
         }
       }
     </style>
+    <script>
+      import { setupNightSpotlight } from '@/utils/spotlight'
+
+      setupNightSpotlight()
+    </script>
   </body>
 </html>

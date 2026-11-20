@@ -16,27 +16,24 @@
   --ring: 240 5.9% 10%;
   --radius: 0.5rem;
 }
-.dark {
-  /* Primary */
-  --primary: 195 95% 85%;
-  /* Foreground */
-  --foreground: 0 0% 98%;
-  --muted-foreground: 240 5% 74.9%;
-  /* Background */
-  --background: 225 14% 10%;
-  --muted: 225 12% 16%;
-  --card: 225 10% 20%;
-
-  /* Basic */
-  --border: 225 9% 27%;
-  --input: 225 10% 22%;
-  --ring: 195 50% 72%;
+html.dark {
+  color-scheme: dark;
+  --primary: 35 64% 74%;
+  --foreground: 42 21% 90%;
+  --muted-foreground: 38 12% 76%;
+  --background: 30 5% 12%;
+  --muted: 30 6% 16%;
+  --card: 32 7% 20%;
+  --border: 34 8% 30%;
+  --input: 34 7% 25%;
+  --ring: 36 55% 67%;
 }
 :root {
   --un-default-border-color: hsl(var(--border) / 1);
 }
-html.dark {
-  color-scheme: dark;
+html.dark #highlight-gradient {
+  opacity: 0.08;
+  max-height: 32rem;
 }
 
 #night-cursor-light {
@@ -44,15 +41,16 @@ html.dark {
   position: fixed;
   top: 0;
   left: 0;
-  width: 36rem;
-  height: 36rem;
+  width: 30rem;
+  height: 30rem;
   z-index: 2;
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(
     closest-side,
-    hsl(var(--primary) / 0.16),
-    hsl(var(--primary) / 0.06) 45%,
+    hsl(42 92% 82% / 0.14),
+    hsl(34 85% 68% / 0.075) 36%,
+    hsl(27 66% 56% / 0.025) 68%,
     transparent
   );
   transform: translate(-50%, -50%);

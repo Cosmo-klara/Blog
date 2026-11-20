@@ -44,15 +44,21 @@ export function setTheme(
     const root = document.documentElement
     root.style.setProperty('--theme-transition-x', `${bounds.left + bounds.width / 2}px`)
     root.classList.add('theme-transitioning')
+    transitionOrigin.dataset.themeMotion = targetTheme
+
+    const cleanupTransition = () => {
+      root.classList.remove('theme-transitioning')
+      transitionOrigin.removeAttribute('data-theme-motion')
+    }
 
     try {
       const transition = transitionDocument.startViewTransition(applyTheme)
       void transition.finished.then(
-        () => root.classList.remove('theme-transitioning'),
-        () => root.classList.remove('theme-transitioning')
+        cleanupTransition,
+        cleanupTransition
       )
     } catch {
-      root.classList.remove('theme-transitioning')
+      cleanupTransition()
       applyTheme()
     }
   } else {

@@ -33,11 +33,14 @@ void main() {
   float distanceSquared = dot(point, point);
   float core = exp(-distanceSquared * 300.0);
   float pinpoint = exp(-distanceSquared * 1800.0);
+  float shortHorizontalRay = exp(-abs(point.x) * 80.0) * exp(-abs(point.y) * 24.0);
+  float shortVerticalRay = exp(-abs(point.y) * 80.0) * exp(-abs(point.x) * 24.0);
   float horizontalRay = exp(-abs(point.x) * 70.0) * exp(-abs(point.y) * 7.0);
   float verticalRay = exp(-abs(point.y) * 70.0) * exp(-abs(point.x) * 7.0);
+  float shortRays = (shortHorizontalRay + shortVerticalRay) * 0.28;
   float flare = (horizontalRay + verticalRay) * v_flare;
   float twinkle = 0.08 + 0.92 * (0.5 + 0.5 * sin(u_time * v_speed + v_phase));
-  float intensity = core * 1.25 + pinpoint * 1.2 + flare * 0.64;
+  float intensity = core * 1.25 + pinpoint * 1.2 + shortRays + flare * 0.64;
   float alpha = clamp(intensity * v_alpha * twinkle, 0.0, 1.0);
   vec3 color = mix(v_color, vec3(1.0, 0.99, 0.91), clamp(core * 0.7 + pinpoint * 0.8, 0.0, 1.0));
   gl_FragColor = vec4(color, alpha);

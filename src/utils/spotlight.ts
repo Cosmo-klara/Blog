@@ -17,24 +17,47 @@ export function setupNightSpotlight() {
   let frame = 0
   let pointerX = 0
   let pointerY = 0
+  let lightX = 0
+  let lightY = 0
+  let lastFrameTime = 0
 
   function hide() {
     cancelAnimationFrame(frame)
     frame = 0
+    lastFrameTime = 0
     light?.removeAttribute('data-visible')
+  }
+
+  const animate = (now: number) => {
+    frame = 0
+    const elapsed = lastFrameTime ? now - lastFrameTime : 1000 / 60
+    lastFrameTime = now
+    const follow = 1 - Math.exp(-elapsed / 80)
+    lightX += (pointerX - lightX) * follow
+    lightY += (pointerY - lightY) * follow
+
+    const distance = Math.hypot(pointerX - lightX, pointerY - lightY)
+    if (distance < 0.35) {
+      lightX = pointerX
+      lightY = pointerY
+      lastFrameTime = 0
+    }
+    light.style.translate = `${lightX}px ${lightY}px`
+    if (distance >= 0.35) frame = requestAnimationFrame(animate)
   }
 
   const follow = (event: PointerEvent) => {
     if (event.pointerType !== 'mouse') return hide()
     pointerX = event.clientX
     pointerY = event.clientY
-    if (frame) return
-
-    frame = requestAnimationFrame(() => {
-      light.style.translate = `${pointerX}px ${pointerY}px`
-      light.toggleAttribute('data-visible', true)
-      frame = 0
-    })
+    if (!light.hasAttribute('data-visible')) {
+      lightX = pointerX
+      lightY = pointerY
+      light.style.translate = `${lightX}px ${lightY}px`
+      light.setAttribute('data-visible', '')
+      return
+    }
+    if (!frame) frame = requestAnimationFrame(animate)
   }
 
   document.addEventListener('pointermove', follow, { passive: true })

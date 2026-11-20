@@ -17,7 +17,7 @@ language: '中文'
 
 目前最流行的 Attention 机制当属《Attention is All You Need》中提出的 Scaled-Dot Attention，也就是缩放点积 Attention。
 
-这里主要讨论自注意力，故统一设 $Q, K, V \in \mathbb{R}^{n \times d}$，一般情况下来说 $n > d ( 或 n >> d)$
+这里主要讨论自注意力，故统一设 $Q, K, V \in \mathbb{R}^{n \times d}$，一般情况下来说 $n > d$（或 $n \gg d$）。
 
 $$ Attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{d}})V $$
 
@@ -58,8 +58,10 @@ $$x_1, x_2, \dots, x_t$$
 
 状态更新：
 $$
+\begin{aligned}
 \mathbb{K}_t.append(k_t) \\
 \mathbb{V}_t.append(v_t)
+\end{aligned}
 $$
 
 查询规则(输出)：

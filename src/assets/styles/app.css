@@ -41,16 +41,16 @@ html.dark #highlight-gradient {
   position: fixed;
   top: 0;
   left: 0;
-  width: 30rem;
-  height: 30rem;
+  width: 32rem;
+  height: 32rem;
   z-index: 2;
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(
     closest-side,
-    hsl(42 92% 82% / 0.14),
-    hsl(34 85% 68% / 0.075) 36%,
-    hsl(27 66% 56% / 0.025) 68%,
+    hsl(38 100% 80% / 0.24),
+    hsl(31 100% 68% / 0.14) 36%,
+    hsl(25 90% 58% / 0.05) 68%,
     transparent
   );
   transform: translate(-50%, -50%);

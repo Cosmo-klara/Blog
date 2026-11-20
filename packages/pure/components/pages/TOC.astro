@@ -42,10 +42,14 @@ const toc = generateToc(headings)
     headings: HTMLElement[] = []
     tocLinks: TOCLink[] = []
     headingProgress: Record<string, HeadingProgress> = {}
+    animationFrame = 0
+    resizeObserver?: ResizeObserver
 
     constructor() {
       super()
-      // Initialize the headings and tocLinks
+    }
+
+    connectedCallback() {
       this.headings = Array.from(
         document.querySelectorAll(
           'article h1, article h2, article h3, article h4, article h5, article h6'
@@ -56,49 +60,6 @@ const toc = generateToc(headings)
         progressBar: link.previousElementSibling as HTMLElement,
         slug: (link.getAttribute('href') || '').substring(1)
       }))
-    }
-
-    updatePositionAndStyle = () => {
-      const windowHeight = window.innerHeight
-      const pageOffset =
-        window.scrollY - ((document.querySelector('#content') as HTMLElement)?.offsetTop || 0)
-      const postOffset =
-        ((document.querySelector('#content') as HTMLElement)?.offsetHeight || 0) + 127
-
-      this.headings.forEach((el, index) => {
-        const nextHeadingTop = this.headings[index + 1]?.offsetTop || postOffset
-        const range = [el.offsetTop - pageOffset, nextHeadingTop - pageOffset - el.offsetHeight]
-        const progress = (windowHeight - range[0]) / (range[1] - range[0])
-
-        this.headingProgress[el.id] = {
-          inView: range[0] < windowHeight && range[1] > 0,
-          progress: Math.max(0, Math.min(1, progress))
-        }
-      })
-
-      this.tocLinks.forEach(({ element: el, progressBar: bar, slug }, i) => {
-        const { inView, progress } = this.headingProgress[slug]
-        if (this.headingProgress[slug]) {
-          el.classList.toggle('highlight', inView)
-          el.classList.toggle('highlight-bg-translucent', inView)
-          el.classList.toggle(
-            'rounded-t-2xl',
-            inView && (i === 0 || !this.headingProgress[this.tocLinks[i - 1]?.slug].inView)
-          )
-          el.classList.toggle(
-            'rounded-b-2xl',
-            inView &&
-              (i === this.tocLinks.length - 1 ||
-                !this.headingProgress[this.tocLinks[i + 1]?.slug].inView)
-          )
-          bar.classList.toggle('is-read', !inView && progress === 1)
-          bar.classList.toggle('highlight-bg', inView)
-          bar.style.setProperty('height', `${progress * 90}%`)
-        }
-      })
-    }
-
-    connectedCallback() {
       // Smooth scroll
       this.tocLinks.forEach((link) => {
         link.element.addEventListener('click', (e) => {
@@ -119,9 +80,63 @@ const toc = generateToc(headings)
         })
       })
 
-      // Initial first and listen to scroll event
-      setInterval(this.updatePositionAndStyle, 100)
-      window.addEventListener('scroll', this.updatePositionAndStyle)
+      window.addEventListener('scroll', this.scheduleUpdate, { passive: true })
+      window.addEventListener('resize', this.scheduleUpdate, { passive: true })
+      this.resizeObserver = new ResizeObserver(this.scheduleUpdate)
+      const content = document.querySelector('#content')
+      if (content) this.resizeObserver.observe(content)
+      this.updatePositionAndStyle()
+    }
+
+    disconnectedCallback() {
+      window.removeEventListener('scroll', this.scheduleUpdate)
+      window.removeEventListener('resize', this.scheduleUpdate)
+      this.resizeObserver?.disconnect()
+      cancelAnimationFrame(this.animationFrame)
+    }
+
+    scheduleUpdate = () => {
+      if (this.animationFrame) return
+      this.animationFrame = requestAnimationFrame(() => {
+        this.animationFrame = 0
+        this.updatePositionAndStyle()
+      })
+    }
+
+    updatePositionAndStyle = () => {
+      const windowHeight = window.innerHeight
+      const content = document.querySelector('#content')
+      const contentBottom = content?.getBoundingClientRect().bottom ?? windowHeight + 127
+
+      this.headings.forEach((heading, index) => {
+        const top = heading.getBoundingClientRect().top
+        const nextTop = this.headings[index + 1]?.getBoundingClientRect().top ?? contentBottom
+        const rangeEnd = Math.max(top + heading.offsetHeight, nextTop)
+        const progress = Math.max(0, Math.min(1, (windowHeight - top) / (rangeEnd - top)))
+
+        this.headingProgress[heading.id] = {
+          inView: top < windowHeight && rangeEnd > 0,
+          progress
+        }
+      })
+
+      this.tocLinks.forEach(({ element, progressBar, slug }, index) => {
+        const state = this.headingProgress[slug]
+        if (!state) return
+
+        const previous = this.headingProgress[this.tocLinks[index - 1]?.slug]
+        const next = this.headingProgress[this.tocLinks[index + 1]?.slug]
+        element.classList.toggle('highlight', state.inView)
+        element.classList.toggle('highlight-bg-translucent', state.inView)
+        element.classList.toggle('rounded-t-2xl', state.inView && (index === 0 || !previous?.inView))
+        element.classList.toggle(
+          'rounded-b-2xl',
+          state.inView && (index === this.tocLinks.length - 1 || !next?.inView)
+        )
+        progressBar.classList.toggle('is-read', !state.inView && state.progress === 1)
+        progressBar.classList.toggle('highlight-bg', state.inView)
+        progressBar.style.setProperty('height', `${state.progress * 90}%`)
+      })
     }
   }
 

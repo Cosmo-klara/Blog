@@ -22,10 +22,13 @@ interface FriendList {
   link_list: Friend[]
 }
 
-function shuffle(arr: Friend[]) {
-  return arr.sort(() => {
-    return Math.random() - 0.5
-  })
+function shuffle(friends: Friend[]) {
+  const shuffled = [...friends]
+  for (let index = shuffled.length - 1; index > 0; index--) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    ;[shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]]
+  }
+  return shuffled
 }
 
 interface Props {

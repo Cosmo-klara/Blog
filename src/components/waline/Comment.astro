@@ -1,8 +1,6 @@
 ---
 import config from '@/site-config'
 
-import '@waline/client/style'
-
 import { cn } from 'astro-pure/utils'
 
 const { class: className } = Astro.props
@@ -17,43 +15,6 @@ const { class: className } = Astro.props
     </comment-component>
   )
 }
-
-<script>
-  import { init as walineInit } from '@waline/client'
-  import type { WalineEmojiPresets } from '@waline/client'
-  import config from 'virtual:config'
-
-  const walineConfig = config.integ.waline
-
-  class Comment extends HTMLElement {
-    constructor() {
-      super()
-    }
-
-    connectedCallback() {
-      // Prevent Vue log errors
-      ;(globalThis as unknown as { __VUE_OPTIONS_API__: boolean }).__VUE_OPTIONS_API__ = true
-      ;(globalThis as unknown as { __VUE_PROD_DEVTOOLS__: boolean }).__VUE_PROD_DEVTOOLS__ = false
-      ;(
-        globalThis as unknown as { __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: boolean }
-      ).__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = false
-
-      const emoji = walineConfig.emoji?.map(
-        (preset) => `${config.npmCDN}/@waline/emojis@1.2.0/${preset}` as WalineEmojiPresets
-      )
-
-      walineInit({
-        el: 'comment-component #waline',
-        serverURL: walineConfig.server || '',
-        emoji,
-        reaction: ['/icons/heart-item.svg'],
-        ...walineConfig.additionalConfigs
-      })
-    }
-  }
-
-  if (walineConfig.enable) customElements.define('comment-component', Comment)
-</script>
 
 {
   config.integ.waline.showMeta &&(

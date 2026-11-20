@@ -93,6 +93,9 @@ const {
       import { setupNightSpotlight } from '@/utils/spotlight'
 
       setupNightSpotlight()
+      if (document.querySelector('comment-component')) {
+        void import('@/components/waline/comment-client')
+      }
     </script>
   </body>
 </html>

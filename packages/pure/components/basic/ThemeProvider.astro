@@ -20,7 +20,6 @@
 </script>
 
 <script>
-  import { Icons } from '../../libs/icons'
   import { getSystemTheme, getTheme, listenThemeChange, setTheme } from '../../utils'
 
   const syncTheme = () => {
@@ -39,7 +38,8 @@
     const toast = document.createElement('div')
     toast.className =
       'animate fixed bottom-8 z-20 px-4 py-2 bg-muted text-foreground rounded-lg border shadow-lg flex items-center gap-2'
-    toast.innerHTML = `<svg width='22' height='22' viewBox='0 0 24 24' fill='currentColor'>${Icons.info}</svg> <span>${message}</span>`
+    toast.innerHTML =
+      `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm0-13a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm1 4h-2v6h2v-6Z"/></svg><span>${message}</span>`
     document.body.appendChild(toast)
     setTimeout(() => {
       toast.remove()

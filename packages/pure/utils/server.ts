@@ -38,7 +38,7 @@ export function groupCollectionsByYear<T extends CollectionKey>(
 }
 
 export function sortMDByDate(collections: Collections): Collections {
-  return collections.sort((a, b) => {
+  return [...collections].sort((a, b) => {
     const aDate = new Date(a.data.updatedDate ?? a.data.publishDate ?? 0).valueOf()
     const bDate = new Date(b.data.updatedDate ?? b.data.publishDate ?? 0).valueOf()
     return bDate - aDate

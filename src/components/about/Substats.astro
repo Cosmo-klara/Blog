@@ -21,13 +21,24 @@ const { stats } = Astro.props as Props
 async function fetchCount(item: SubstatsItem) {
   if (!item.api) return
   try {
-    const response = await fetch(`https://api.swo.moe/stats/${item.api}`)
-    const data = await response.json()
-    if (data.failed) {
-      throw new Error(data.message)
-    } else {
-      item.count = data.count
+    const response = await fetch(`https://api.swo.moe/stats/${item.api}`, {
+      signal: AbortSignal.timeout(4000)
+    })
+    if (!response.ok) throw new Error(`Substats returned HTTP ${response.status}`)
+
+    const data: unknown = await response.json()
+    if (
+      typeof data !== 'object' ||
+      data === null ||
+      ('failed' in data && data.failed === true) ||
+      !('count' in data) ||
+      typeof data.count !== 'number' ||
+      !Number.isFinite(data.count)
+    ) {
+      throw new Error('Substats returned an invalid count')
     }
+
+    item.count = data.count
   } catch (error) {
     console.error(`Error in Substats fetching: ${error}`)
   }
@@ -50,7 +61,7 @@ await Promise.all(stats.map(fetchCount))
           <div class='flex-1 text-foreground transition-colors group-hover:text-primary'>
             {platform}
           </div>
-          {count ? (
+          {count !== undefined ? (
             <div class='flex items-center gap-1.5'>
               <samp>{count}</samp>
               <span class='text-sm font-normal'>{text}</span>
